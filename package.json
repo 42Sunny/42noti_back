@@ -1,0 +1,28 @@
+{
+	"name": "42meetup-server",
+	"version": "0.0.1",
+	"description": "",
+	"main": "app.js",
+	"scripts": {
+		"start": "node app.js",
+		"dev": "nodemon app.js"
+	},
+	"author": "srngch",
+	"dependencies": {
+		"dotenv": "^10.0.0",
+		"express": "^4.17.1",
+		"http-status": "^1.5.0",
+		"http-errors": "^1.8.1",
+		"morgan": "^1.10.0",
+		"winston": "^3.3.3",
+		"winston-daily-rotate-file": "^4.5.5"
+	},
+	"devDependencies": {
+		"eslint": "^8.3.0",
+		"eslint-config-airbnb-base": "^15.0.0",
+		"eslint-config-prettier": "^8.3.0",
+		"eslint-plugin-import": "^2.25.3",
+		"nodemon": "^2.0.15",
+		"prettier": "2.4.1"
+	}
+}
