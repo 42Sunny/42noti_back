@@ -1,6 +1,6 @@
 exports.data = [
   {
-    id: 200120,
+    id: 9003,
     title: '[테스트] 1월 25일 이벤트',
     description:
       'Incididunt laboris sint laborum Lorem ut do ut laboris aute consectetur ut laboris. Commodo ut nulla esse ex amet nostrud irure nostrud anim proident. Velit do aliquip velit ut magna amet esse aliqua ut. Veniam consectetur occaecat veniam ipsum aute magna. Adipisicing consequat voluptate consequat pariatur irure aliquip ut reprehenderit.',
@@ -15,7 +15,7 @@ exports.data = [
     updatedAt: '2022-01-22T07:15:10.242Z',
   },
   {
-    id: 200120,
+    id: 9002,
     title: '[테스트] 1월 20일 이벤트',
     description:
       'Incididunt laboris sint laborum Lorem ut do ut laboris aute consectetur ut laboris. Commodo ut nulla esse ex amet nostrud irure nostrud anim proident. Velit do aliquip velit ut magna amet esse aliqua ut. Veniam consectetur occaecat veniam ipsum aute magna. Adipisicing consequat voluptate consequat pariatur irure aliquip ut reprehenderit.',
@@ -30,7 +30,7 @@ exports.data = [
     updatedAt: '2022-01-20T07:15:10.242Z',
   },
   {
-    id: 220109,
+    id: 9001,
     title: '[테스트] 1월 9일 이벤트',
     description:
       'Incididunt laboris sint laborum Lorem ut do ut laboris aute consectetur ut laboris. Commodo ut nulla esse ex amet nostrud irure nostrud anim proident. Velit do aliquip velit ut magna amet esse aliqua ut. Veniam consectetur occaecat veniam ipsum aute magna. Adipisicing consequat voluptate consequat pariatur irure aliquip ut reprehenderit.',
@@ -45,7 +45,7 @@ exports.data = [
     updatedAt: '2022-01-09T07:15:10.242Z',
   },
   {
-    id: 220101,
+    id: 9000,
     title: '[테스트] 1월 1일 이벤트',
     description:
       'Incididunt laboris sint laborum Lorem ut do ut laboris aute consectetur ut laboris. Commodo ut nulla esse ex amet nostrud irure nostrud anim proident. Velit do aliquip velit ut magna amet esse aliqua ut. Veniam consectetur occaecat veniam ipsum aute magna. Adipisicing consequat voluptate consequat pariatur irure aliquip ut reprehenderit.',
@@ -75,8 +75,8 @@ exports.data = [
     updatedAt: '2021-12-01T07:15:10.242Z',
   },
   {
-    id: 8309,
-    title: '[특강]창업 초기 꼭 알아야 할 3가지 주제_Dcamp 김영덕 소장님',
+    id: 8314,
+    title: '[더미] 12월 8일',
     description:
       'ㅇDcamp 소장님의 창업 특강\r\n  - 주제 : 창업 초기 꼭 알아야 할 3가지 주제\r\n  - 일시 : 2021년 12월 3일(금) 15:00\r\n  - 장소 : 개포 교육장 지하 1층(이노콘 메인무대)',
     location: '  개포 교육장 지하 1층(이노콘 메인무대)',
@@ -90,8 +90,8 @@ exports.data = [
     updatedAt: '2021-12-07T15:34:21.224Z',
   },
   {
-    id: 8309,
-    title: '[특강]창업 초기 꼭 알아야 할 3가지 주제_Dcamp 김영덕 소장님',
+    id: 8313,
+    title: '[더미] 12월 7일',
     description:
       'ㅇDcamp 소장님의 창업 특강\r\n  - 주제 : 창업 초기 꼭 알아야 할 3가지 주제\r\n  - 일시 : 2021년 12월 3일(금) 15:00\r\n  - 장소 : 개포 교육장 지하 1층(이노콘 메인무대)',
     location: '  개포 교육장 지하 1층(이노콘 메인무대)',
@@ -105,8 +105,8 @@ exports.data = [
     updatedAt: '2021-12-06T15:34:21.224Z',
   },
   {
-    id: 8309,
-    title: '[특강]창업 초기 꼭 알아야 할 3가지 주제_Dcamp 김영덕 소장님',
+    id: 8312,
+    title: '[더미] 12월 6일',
     description:
       'ㅇDcamp 소장님의 창업 특강\r\n  - 주제 : 창업 초기 꼭 알아야 할 3가지 주제\r\n  - 일시 : 2021년 12월 3일(금) 15:00\r\n  - 장소 : 개포 교육장 지하 1층(이노콘 메인무대)',
     location: '  개포 교육장 지하 1층(이노콘 메인무대)',
@@ -120,8 +120,8 @@ exports.data = [
     updatedAt: '2021-12-05T15:34:21.224Z',
   },
   {
-    id: 8309,
-    title: '[특강]창업 초기 꼭 알아야 할 3가지 주제_Dcamp 김영덕 소장님',
+    id: 8311,
+    title: '[더미] 12월 5일',
     description:
       'ㅇDcamp 소장님의 창업 특강\r\n  - 주제 : 창업 초기 꼭 알아야 할 3가지 주제\r\n  - 일시 : 2021년 12월 3일(금) 15:00\r\n  - 장소 : 개포 교육장 지하 1층(이노콘 메인무대)',
     location: '  개포 교육장 지하 1층(이노콘 메인무대)',
@@ -135,34 +135,19 @@ exports.data = [
     updatedAt: '2021-12-04T15:34:21.224Z',
   },
   {
-    id: 8309,
-    title: '[특강]창업 초기 꼭 알아야 할 3가지 주제_Dcamp 김영덕 소장님',
+    id: 8310,
+    title: '[더미] 12월 4일',
     description:
       'ㅇDcamp 소장님의 창업 특강\r\n  - 주제 : 창업 초기 꼭 알아야 할 3가지 주제\r\n  - 일시 : 2021년 12월 3일(금) 15:00\r\n  - 장소 : 개포 교육장 지하 1층(이노콘 메인무대)',
     location: '  개포 교육장 지하 1층(이노콘 메인무대)',
     category: 'conference',
     maxSubscribers: 50,
     currentSubscribers: 50,
-    beginAt: '2021-12-03T06:00:00.000Z',
-    endAt: '2021-12-03T07:00:00.000Z',
+    beginAt: '2021-12-04T06:00:00.000Z',
+    endAt: '2021-12-04T07:00:00.000Z',
     tags: [],
-    createdAt: '2021-12-01T11:47:58.312Z',
-    updatedAt: '2021-12-01T15:34:21.224Z',
-  },
-  {
-    id: 8309,
-    title: '[특강]창업 초기 꼭 알아야 할 3가지 주제_Dcamp 김영덕 소장님',
-    description:
-      'ㅇDcamp 소장님의 창업 특강\r\n  - 주제 : 창업 초기 꼭 알아야 할 3가지 주제\r\n  - 일시 : 2021년 12월 3일(금) 15:00\r\n  - 장소 : 개포 교육장 지하 1층(이노콘 메인무대)',
-    location: '  개포 교육장 지하 1층(이노콘 메인무대)',
-    category: 'conference',
-    maxSubscribers: 50,
-    currentSubscribers: 50,
-    beginAt: '2021-12-03T06:00:00.000Z',
-    endAt: '2021-12-03T07:00:00.000Z',
-    tags: [],
-    createdAt: '2021-12-01T11:47:58.312Z',
-    updatedAt: '2021-12-01T15:34:21.224Z',
+    createdAt: '2021-12-01T11:48:58.312Z',
+    updatedAt: '2021-12-01T15:35:21.224Z',
   },
   {
     id: 8309,
