@@ -15,7 +15,7 @@ const sequelize = new Sequelize(
     define: {
       charset: 'utf8mb4',
       collate: 'utf8mb4_general_ci',
-      // freezeTableName: true,
+      freezeTableName: true,
     },
     timezone: '+09:00',
   },
@@ -30,5 +30,8 @@ User.init(sequelize);
 
 Event.associate(db);
 User.associate(db);
+
+Event.belongsToMany(User, { through: 'EventUser' });
+User.belongsToMany(Event, { through: 'EventUser' });
 
 module.exports = db;

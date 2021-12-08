@@ -4,7 +4,7 @@ module.exports = class Event extends Model {
   static init(sequelize) {
     return super.init(
       {
-        intra_id: {
+        intraDataId: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
@@ -19,17 +19,17 @@ module.exports = class Event extends Model {
         location: {
           type: DataTypes.STRING,
         },
-        max_subscribers: {
+        maxSubscribers: {
           type: DataTypes.INTEGER,
         },
-        current_subscribers: {
+        currentSubscribers: {
           type: DataTypes.INTEGER,
         },
-        begin_at: {
+        beginAt: {
           type: DataTypes.DATE,
           allowNull: false,
         },
-        end_at: {
+        endAt: {
           type: DataTypes.DATE,
           allowNull: false,
         },
@@ -45,8 +45,6 @@ module.exports = class Event extends Model {
       },
       {
         sequelize,
-        modelName: 'Event',
-        tableName: 'events',
         timestamps: true,
       },
     );

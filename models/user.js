@@ -4,11 +4,11 @@ module.exports = class User extends Model {
   static init(sequelize) {
     return super.init(
       {
-        intra_id: {
+        intraDataId: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        intra_login: {
+        intraDataLogin: {
           type: DataTypes.STRING,
           allowNull: false,
         },
@@ -22,20 +22,18 @@ module.exports = class User extends Model {
           type: DataTypes.STRING,
           allowNull: false,
         },
-        access_token: {
+        accessToken: {
           type: DataTypes.STRING,
         },
-        refresh_token: {
+        refreshToken: {
           type: DataTypes.STRING,
         },
-        token_expiry_date: {
+        tokenExpiryDate: {
           type: DataTypes.DATE,
         },
       },
       {
         sequelize,
-        modelName: 'User',
-        tableName: 'users',
         timestamps: true,
         paranoid: true,
       },
