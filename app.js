@@ -13,6 +13,7 @@ async function startServer() {
       return;
     }
     console.log(`Server listening on port ${env.port}`);
+    console.log(`${env.host}:${env.port}`);
   });
 }
 
