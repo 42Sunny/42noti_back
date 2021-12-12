@@ -4,8 +4,8 @@ dotenv.config();
 
 module.exports = {
   back: {
-    host: process.env.BACK_HOST || 'localhost',
-    port: process.env.BACK_PORT || 4242,
+    host: process.env.BACK_HOST || '0.0.0.0',
+    port: process.env.BACK_PORT || process.env.PORT || 4242,
   },
   front: {
     host: process.env.FRONT_HOST || 'localhost',
