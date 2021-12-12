@@ -1,7 +1,7 @@
 const passport = require('passport');
 const FortyTwoStrategy = require('passport-42').Strategy;
 const env = require('../config');
-const User = require('../models/user');
+// const User = require('../models/user');
 
 module.exports = app => {
   passport.use(
@@ -17,24 +17,25 @@ module.exports = app => {
         console.log('refreshToken', refreshToken);
         console.log('profile', profile);
         try {
-          const user = await User.findOne({
-            where: {
-              intraDataId: profile.id,
-            }
-          });
-          if (user) {
-            return done(null, user);
-          }
-          const newUser = await User.create({
-            intraDataId: profile.id,
-            intraDataLogin: profile.username,
-            email: profile.emails[0].value,
-            profile: profile._json,
-            role: profile._json.staff ? 'staff' : 'cadet',
-            accessToken,
-            refreshToken,
-          });
-          return done(null, newUser);
+//          const user = await User.findOne({
+//            where: {
+//              intraDataId: profile.id,
+//            }
+//          });
+//          if (user) {
+//            return done(null, user);
+//          }
+//          const newUser = await User.create({
+//            intraDataId: profile.id,
+//            intraDataLogin: profile.username,
+//             email: profile.emails[0].value,
+//             profile: profile._json,
+//             role: profile._json.staff ? 'staff' : 'cadet',
+//             accessToken,
+//             refreshToken,
+//           });
+//           return done(null, newUser);
+          return;
         } catch (err) {
           done(err);
         }
