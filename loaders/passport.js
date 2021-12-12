@@ -9,7 +9,7 @@ module.exports = app => {
       {
         clientID: env.fortytwoClientId,
         clientSecret: env.fortytwoClientSecret,
-        callbackURL: `${env.host}:${env.port}/login/42/return`,
+        callbackURL: `http://${env.back.host}:${env.back.port}/login/42/return`,
         passReqToCallback: true,
       },
       async (req, accessToken, refreshToken, profile, done) => {
@@ -18,7 +18,9 @@ module.exports = app => {
         console.log('profile', profile);
         try {
           const user = await User.findOne({
-            intraDataId: profile.id,
+            where: {
+              intraDataId: profile.id,
+            }
           });
           if (user) {
             return done(null, user);

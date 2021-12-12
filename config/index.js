@@ -3,8 +3,14 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 module.exports = {
-  host: process.env.HOST || 'http://localhost',
-  port: process.env.PORT || 3000,
+  back: {
+    host: process.env.BACK_HOST || 'localhost',
+    port: process.env.BACK_PORT || 4242,
+  },
+  front: {
+    host: process.env.FRONT_HOST || 'localhost',
+    port: process.env.FRONT_PORT || 3000,
+  },
   fortytwoClientId: process.env.FORTYTWO_CLIENT_ID,
   fortytwoClientSecret: process.env.FORTYTWO_CLIENT_SECRET,
   databasePort: process.env.DATABASE_PORT || 27017,
