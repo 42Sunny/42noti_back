@@ -3,21 +3,29 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const morgan = require('morgan');
-const logger = require('./winston');
+const session = require('express-session');
 const env = require('../config');
+const logger = require('./winston');
+const passport = require('./passport');
 
-const combined = ':remote-addr - :remote-user ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"';
+const combined =
+  ':remote-addr - :remote-user ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"';
 const morganFormat = env.NODE_ENV !== 'production' ? 'dev' : combined;
 console.log(morganFormat);
 const routes = require('../routes');
 
-module.exports = async (app) => {
+module.exports = async app => {
   app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
 
-  app.use(express.static(path.join(__dirname, 'public')));
   app.use(morgan(morganFormat, { stream: logger.stream }));
+  app.use(
+    session({ resave: false, saveUninitialized: false, secret: '!Seoul' }),
+  );
+  app.use(express.static(path.join(__dirname, 'public')));
+
+  passport(app);
 
   app.use('/', routes);
 

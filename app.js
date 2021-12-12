@@ -7,12 +7,13 @@ async function startServer() {
 
   await loaders(app);
 
-  app.listen(env.port, (err) => {
+  app.listen(env.back.port, (err) => {
     if (err) {
       console.error(err);
       return;
     }
-    console.log(`Server listening on port ${env.port}`);
+    console.log(`Server listening on port ${env.back.port}`);
+    console.log(`http://${env.back.host}:${env.back.port}`);
   });
 }
 
