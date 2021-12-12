@@ -15,7 +15,7 @@ module.exports = app => {
       async (req, accessToken, refreshToken, profile, done) => {
         console.log('accessToken', accessToken);
         console.log('refreshToken', refreshToken);
-        console.log('profile', profile);
+//         console.log('profile', profile);
         try {
 //          const user = await User.findOne({
 //            where: {
@@ -35,7 +35,7 @@ module.exports = app => {
 //             refreshToken,
 //           });
 //           return done(null, newUser);
-          return;
+          return done(null, profile) ;
         } catch (err) {
           done(err);
         }
