@@ -9,7 +9,7 @@ module.exports = app => {
       {
         clientID: env.fortytwoClientId,
         clientSecret: env.fortytwoClientSecret,
-        callbackURL: `https://test-42meetup.herokuapp.com/login/42/return`,
+        callbackURL: `http://test-42meetup.herokuapp.com/login/42/return`,
         passReqToCallback: true,
       },
       async (req, accessToken, refreshToken, profile, done) => {
