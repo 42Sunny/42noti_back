@@ -1,6 +1,23 @@
 exports.data = [
   {
-    "id": 9027,
+    "id": 9029,
+    "title": "[테스트] 1월1일 새해 이벤트2",
+    "description": "Incididunt laboris sint laborum Lorem ut do ut laboris aute consectetur ut laboris. Commodo ut nulla esse ex amet nostrud irure nostrud anim proident. Velit do aliquip velit ut magna amet esse aliqua ut. Veniam consectetur occaecat veniam ipsum aute magna. Adipisicing consequat voluptate consequat pariatur irure aliquip ut reprehenderit.",
+    "location": "장소 테스트",
+    "category": "meetup",
+    "maxSubscribers": 1000,
+    "currentSubscribers": 100,
+    "beginAt": "2022-01-01T10:30:00.000Z",
+    "endAt": "2021-12-29T16:00:00.000Z",
+    "tags": [
+        "meetup 테스트1",
+        "테스트2"
+    ],
+"createdAt": "2021-12-15T13:28:48.164Z",
+"updatedAt": "2021-12-16T03:30:10.242Z"
+},
+  {
+    "id": 9028,
     "title": "[테스트] 1월1일 새해 이벤트1",
     "description": "Incididunt laboris sint laborum Lorem ut do ut laboris aute consectetur ut laboris. Commodo ut nulla esse ex amet nostrud irure nostrud anim proident. Velit do aliquip velit ut magna amet esse aliqua ut. Veniam consectetur occaecat veniam ipsum aute magna. Adipisicing consequat voluptate consequat pariatur irure aliquip ut reprehenderit.",
     "location": "장소 테스트",
@@ -14,7 +31,7 @@ exports.data = [
         "테스트2"
     ],
 "createdAt": "2021-12-15T13:28:48.164Z",
-"updatedAt": "2021-12-15T20:15:10.242Z"
+"updatedAt": "2021-12-16T01:15:10.242Z"
 },
   {
     "id": 9027,
@@ -116,7 +133,7 @@ exports.data = [
         "테스트2"
     ],
 "createdAt": "2021-12-15T13:28:48.164Z",
-"updatedAt": "2021-12-16T06:30:10.242Z"
+"updatedAt": "2021-12-16T00:30:10.242Z"
 },
 {
     "id": 9021,
