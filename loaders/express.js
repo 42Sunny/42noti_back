@@ -3,6 +3,8 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+const context = require('express-http-context');
 const session = require('express-session');
 const env = require('../config');
 const logger = require('./winston');
@@ -14,18 +16,45 @@ const morganFormat = env.NODE_ENV !== 'production' ? 'dev' : combined;
 console.log(morganFormat);
 const routes = require('../routes');
 
+const clientErrorHandler = (err, req, res, next) => {
+  if (req.xhr) {
+    res.status(500).send({ error: 'Something failed!' });
+  } else {
+    next(err);
+  }
+};
+
+const errorHandler= (err, req, res, next) => {
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  res.status(err.status || 500);
+};
+
 module.exports = async app => {
-  app.use(cors());
+  app.use(cookieParser());
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
 
   app.use(morgan(morganFormat, { stream: logger.stream }));
   app.use(
-    session({ resave: false, saveUninitialized: false, secret: '!Seoul' }),
+    session({secret: `meetup`, resave: false, saveUninitialized: false}),
   );
-  app.use(express.static(path.join(__dirname, 'public')));
 
   passport(app);
+
+
+  app.use(context.middleware);
+  app.use(
+    cors({
+      origin: [
+        `${env.back.host}:${env.back.port}`,
+        `${env.front.host}:${env.front.port}`,
+        `42.fr`,
+      ],
+      credentials: true,
+    }),
+  );
 
   app.use('/', routes);
 
@@ -33,12 +62,8 @@ module.exports = async app => {
     next(createError(404));
   });
 
-  app.use((err, req, res) => {
-    res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-    res.status(err.status || 500);
-  });
+  app.use(clientErrorHandler);
+  app.use(errorHandler);
 
   return app;
 };

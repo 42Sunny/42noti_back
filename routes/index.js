@@ -21,5 +21,4 @@ router.use('/', (req, res) => {
   res.send('42Meetup!');
 })
 
-
 module.exports = router;

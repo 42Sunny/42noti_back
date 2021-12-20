@@ -18,4 +18,6 @@ module.exports = {
   databaseUsername: process.env.DATABASE_USERNAME || '',
   databasePassword: process.env.DATABASE_PASSWORD || '',
   databaseName: process.env.DATABASE_NAME || '42meetup',
+  jwtSecret: process.env.JWT_SECRET || 'test-fortytwo-meetup-secret',
+  cookieAuth: process.env.COOKIE_AUTH || 'w_auth_local',
 };
