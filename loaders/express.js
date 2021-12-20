@@ -48,8 +48,8 @@ module.exports = async app => {
   app.use(
     cors({
       origin: [
-        `${env.back.host}:${env.back.port}`,
-        `${env.front.host}:${env.front.port}`,
+        `${env.back.domain}:${env.back.port}`,
+        `${env.frontUrl}`,
         `42.fr`,
       ],
       credentials: true,

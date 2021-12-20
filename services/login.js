@@ -8,8 +8,6 @@ const getUserData = async user => {
     where: { intraId: user.intraId },
   });
 
-  console.log('getUserData user: ', user);
-
   if (!foundedUser) {
     const newUser = await User.create({
       intraId: user.intraId,
@@ -39,10 +37,7 @@ const generateToken = user => {
       sub: user.intraId,
     };
     context.set('login', user?.intraLogin);
-    console.log("generateToken context.get('login')", context.get('login'));
-    const token = jwt.sign(payload, env.jwtSecret, { expiresIn: '7d' });
-    console.log('token: ', token);
-    console.log('payload: ', payload);
+    const token = jwt.sign(payload, env.cookie.secret, { expiresIn: '7d' });
     // TODO: logger
     return token;
   } catch (err) {
@@ -61,9 +56,8 @@ module.exports = {
     const userData = await getUserData(user);
     const token = await generateToken(userData);
     const decodedToken = jwt.decode(token);
-    console.log('decodedToken.exp', decodedToken.exp);
     const cookieOption = {
-      domain: env.back.host,
+      domain: env.cookie.domain,
       expires: new Date(decodedToken.exp * 1000),
     };
     return { token, cookieOption };

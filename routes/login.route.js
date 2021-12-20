@@ -8,32 +8,24 @@ const router = express.Router();
 router.get(
   '/42/return',
   passport.authenticate('42', {
-    failureRedirect: `https://${env.front.host}/test`,
+    failureRedirect: `/login`,
   }),
   loginReturnController,
 );
 
 const authenticate42withCustomCallback = (req, res, next) => {
   passport.authenticate('42', (err, user, info) => {
-    console.log('authenticate 42 user: ', user);
     if (err) {
       return next(err);
     }
     if (!user) {
-      return res.redirect(`https://${env.front.host}:${env.front.port}/`);
+      return res.redirect(env.frontUrl);
     }
   })(req, res, next);
 };
 
 router.get(
   '/42',
-  // (req, res, next) => {
-  //   console.log('## check if client has cookie: ');
-  //   console.log(req.headers.cookie);
-  //   console.log('## req.user: ');
-  //   console.log(req.user);
-  //   next();
-  // },
   authenticate42withCustomCallback,
 );
 

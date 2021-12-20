@@ -15,7 +15,6 @@ const fortytwoStrategyCallback = async (
 ) => {
   console.log('accessToken ', accessToken);
   console.log('refreshToken ', refreshToken);
-  // console.log('profile', profile);
   const {
     intraId,
     intraLogin,
@@ -40,7 +39,6 @@ const fortytwoStrategyCallback = async (
 
       await foundedUser.save();
       return done(null, { meetupData: foundedUser });
-      // return done(null, foundedUser);
     }
     const newUserData = {
       intraId,
@@ -54,7 +52,6 @@ const fortytwoStrategyCallback = async (
           : refreshToken.access_token,
     };
     return done(null, { meetupData: newUserData });
-    // / return done(null, newUserData );
   } catch (err) {
     done(err);
   }
@@ -62,7 +59,6 @@ const fortytwoStrategyCallback = async (
 
 const validate = payload => {
   context.set('login', payload?.username ? payload?.username : '');
-  console.log("validate context.get('login')", context.get('login'));
   // TODO: logger
 
   return { _id: payload.sub, name: payload.username };
@@ -70,9 +66,7 @@ const validate = payload => {
 
 const jwtStrategyCallback = async (jwt_payload, done) => {
   try {
-    console.log('jwt_payload', jwt_payload);
     const user = validate(jwt_payload);
-    console.log('user', user);
     if (user._id) {
       return done(null, { jwt: user });
     } else {
@@ -86,7 +80,6 @@ const jwtStrategyCallback = async (jwt_payload, done) => {
 
 const jwtExtractor = req => {
   // TODO: logger
-  console.log(`req.cookies[${env.cookieAuth}]`, req.cookies[env.cookieAuth]);
   return req.cookies[env.cookieAuth];
 };
 
@@ -94,9 +87,9 @@ module.exports = app => {
   passport.use(
     new FortyTwoStrategy(
       {
-        clientID: env.fortytwoClientId,
-        clientSecret: env.fortytwoClientSecret,
-        callbackURL: `https://${env.back.host}:${env.back.port}/login/42/return`,
+        clientID: env.fortytwoApi.clientId,
+        clientSecret: env.fortytwoApi.clientSecret,
+        callbackURL: env.fortytwoApi.redirectUri,
         // passReqToCallback: true,
         profileFields: {
           intraId: obj => String(obj.id),
@@ -116,7 +109,7 @@ module.exports = app => {
       {
         jwtFromRequest: ExtractJwt.fromExtractors([jwtExtractor]),
         ignoreExpiration: false,
-        secretOrKey: env.jwtSecret,
+        secretOrKey: env.cookie.secret,
       },
       jwtStrategyCallback,
     ),
@@ -126,12 +119,10 @@ module.exports = app => {
   app.use(passport.session());
 
   passport.serializeUser(function (user, done) {
-    console.log('serializeUser user', user);
     done(null, user);
   });
 
   passport.deserializeUser(function (obj, done) {
-    console.log('deserializeUser obj', obj);
     done(null, obj);
   });
 };
