@@ -7,8 +7,8 @@ module.exports = {
   get42Token: async () => {
     const requestData = {
       grant_type: 'client_credentials',
-      client_id: env.fortytwoClientId,
-      client_secret: env.fortytwoClientSecret,
+      client_id: env.fortytwoApi.clientId,
+      client_secret: env.fortytwoApi.clientSecret,
     };
     try {
       const response = await axios(`${END_POINT_42_API}/oauth/token`, {

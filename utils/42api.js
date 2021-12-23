@@ -3,7 +3,7 @@ const { get42Token } = require('./42auth');
 
 const END_POINT_42_API = 'https://api.intra.42.fr';
 
-const get42Api = async path => {
+const get42ApiWithToken = async path => {
   try {
     const { access_token, token_type } = await get42Token();
     console.log(`${token_type} ${access_token}`);
@@ -13,9 +13,10 @@ const get42Api = async path => {
         Authorization: `${token_type} ${access_token}`,
       },
     });
-    if (response) {
-      // console.log(response.data);
+    if (response.status === 200) {
       return response.data;
+    } else {
+      return null;
     }
   } catch (err) {
     console.error(err);
@@ -23,10 +24,20 @@ const get42Api = async path => {
 };
 
 module.exports = {
+  get42Api: async (path) => {
+    try {
+      const data = await get42ApiWithToken(path);
+      if (data) {
+        return data;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  },
   get42Campus: async () => {
     const path = `/v2/campus`;
     try {
-      const data = await get42Api(path);
+      const data = await get42ApiWithToken(path);
       if (data) {
         return data;
       }
@@ -37,7 +48,7 @@ module.exports = {
   get42User: async id => {
     const path = `/v2/users/${id}`;
     try {
-      const data = await get42Api(path);
+      const data = await get42ApiWithToken(path);
       if (data) {
         return data;
       }
@@ -45,10 +56,21 @@ module.exports = {
       console.error(err);
     }
   },
-  get42CampusEvents: async campusId => {
+  get42SeoulCampusEvents: async campusId => {
     const path = `/v2/campus/${campusId}/events`;
     try {
-      const data = await get42Api(path);
+      const data = await get42ApiWithToken(path);
+      if (data) {
+        return data;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  },
+  get42Event: async eventId => {
+    const path = `/v2/events/${eventId}`;
+    try {
+      const data = await get42ApiWithToken(path);
       if (data) {
         return data;
       }
@@ -59,7 +81,7 @@ module.exports = {
   get42UserEvents: async userId => {
     const path = `/v2/users/${userId}/events`;
     try {
-      const data = await get42Api(path);
+      const data = await get42ApiWithToken(path);
       if (data) {
         return data;
       }

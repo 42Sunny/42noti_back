@@ -5,13 +5,13 @@ const User = require('./user');
 
 const db = {};
 const sequelize = new Sequelize(
-  env.databaseName,
-  env.databaseUsername,
-  env.databasePassword,
+  env.db.name,
+  env.db.username,
+  env.db.password,
   {
-    host: env.databaseHost,
+    host: env.db.host,
     dialect: 'mysql',
-    port: env.databasePort,
+    port: env.db.port,
     define: {
       charset: 'utf8mb4',
       collate: 'utf8mb4_general_ci',

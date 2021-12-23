@@ -3,12 +3,28 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 module.exports = {
-  port: process.env.PORT || 3000,
-  fortytwoClientId: process.env.FORTYTWO_CLIENT_ID,
-  fortytwoClientSecret: process.env.FORTYTWO_CLIENT_SECRET,
-  databasePort: process.env.DATABASE_PORT || 27017,
-  databaseHost: process.env.DATABASE_HOST || 'localhost',
-  databaseUsername: process.env.DATABASE_USERNAME || '',
-  databasePassword: process.env.DATABASE_PASSWORD || '',
-  databaseName: process.env.DATABASE_NAME || '42meetup',
+  back: {
+    domain: process.env.BACK_DOMAIN || 'https://localhost',
+    port: process.env.BACK_PORT || 4242,
+  },
+  frontUrl: process.env.FRONT_URL || 'https://localhost:3000',
+  db: {
+    port: process.env.DATABASE_PORT || 27017,
+    host: process.env.DATABASE_HOST || 'localhost',
+    username: process.env.DATABASE_USERNAME || '',
+    password: process.env.DATABASE_PASSWORD || '',
+    name: process.env.DATABASE_NAME || '42meetup',
+  },
+  cookie: {
+    domain: process.env.COOKIE_DOMAIN || 'localhost',
+    secret: process.env.COOKIE_SECRET || 'test-fortytwo-meetup-secret',
+    auth: process.env.COOKIE_AUTH || 'w_auth_local',
+  },
+  fortytwoApi: {
+    clientId: process.env.FORTYTWO_CLIENT_ID,
+    clientSecret: process.env.FORTYTWO_CLIENT_SECRET,
+    redirectUri:
+      process.env.FORTYTWO_REDIRECT ||
+      `${process.env.BACK_DOMAIN}${process.env.BACK_PORT ? `:${process.env.BACK_PORT}` : ''}/login/42/return`,
+  },
 };
