@@ -29,13 +29,4 @@ router.get(
   authenticate42withCustomCallback,
 );
 
-router.get('/test', passport.authenticate('jwt'), (req, res) => {
-  res.send('jwt!!!');
-});
-
-router.use('/', (req, res) => {
-  console.log('login route');
-  res.send('login route');
-});
-
 module.exports = router;

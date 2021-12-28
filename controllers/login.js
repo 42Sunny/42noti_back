@@ -10,12 +10,7 @@ module.exports = {
       const { token, cookieOption } = await loginService.getToken(
         req.user?.meetupData,
       );
-      console.log('loginReturnController req: ', req);
-      console.log('loginReturnController session: ', req.session);
       res.cookie(env.cookie.auth, token, cookieOption);
-      console.log('env.cookie.auth', env.cookie.auth);
-      console.log('token', token);
-      console.log('cookieOption', cookieOption);
       res
         .status(httpStatus.FOUND)
         .redirect(

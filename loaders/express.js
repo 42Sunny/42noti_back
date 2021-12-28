@@ -38,6 +38,7 @@ module.exports = async app => {
 
   app.use(morgan(morganFormat, { stream: logger.stream }));
   app.use(
+    // TODO: change secret using env
     session({secret: `meetup`, resave: false, saveUninitialized: false}),
   );
 

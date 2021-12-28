@@ -24,7 +24,7 @@ const get42ApiWithToken = async path => {
 };
 
 module.exports = {
-  get42Api: async (path) => {
+  get42Api: async path => {
     try {
       const data = await get42ApiWithToken(path);
       if (data) {
@@ -56,8 +56,19 @@ module.exports = {
       console.error(err);
     }
   },
-  get42SeoulCampusEvents: async campusId => {
-    const path = `/v2/campus/${campusId}/events`;
+  get42CampusEvents: async campusId => {
+    const path = `/v2/campus/${campusId}/events?filter[future]=true`;
+    try {
+      const data = await get42ApiWithToken(path);
+      if (data) {
+        return data;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  },
+  get42CampusNewestEvents: async campusId => {
+    const path = `/v2/campus/${campusId}/events?sort=-id&page[size]=1`;
     try {
       const data = await get42ApiWithToken(path);
       if (data) {

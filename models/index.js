@@ -2,6 +2,7 @@ const { Sequelize } = require('sequelize');
 const env = require('../config');
 const Event = require('./event');
 const User = require('./user');
+const userEvent = require('./userEvent');
 
 const db = {};
 const sequelize = new Sequelize(
@@ -24,14 +25,14 @@ const sequelize = new Sequelize(
 db.sequelize = sequelize;
 db.Event = Event;
 db.User = User;
+db.userEvent = userEvent;
 
 Event.init(sequelize);
 User.init(sequelize);
+userEvent.init(sequelize);
 
 Event.associate(db);
 User.associate(db);
-
-Event.belongsToMany(User, { through: 'EventUser' });
-User.belongsToMany(Event, { through: 'EventUser' });
+userEvent.associate(db);
 
 module.exports = db;

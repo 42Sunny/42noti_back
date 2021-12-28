@@ -4,8 +4,16 @@ module.exports = class Event extends Model {
   static init(sequelize) {
     return super.init(
       {
-        intraDataId: {
+        intraId: {
           type: DataTypes.INTEGER,
+          allowNull: false,
+        },
+        intraCreatedAt: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        intraUpdatedAt: {
+          type: DataTypes.STRING,
           allowNull: false,
         },
         title: {
@@ -39,7 +47,7 @@ module.exports = class Event extends Model {
           // category_domain
         },
         tags: {
-          type: DataTypes.STRING,
+          type: DataTypes.TEXT,
           allowNull: false,
         },
       },
@@ -50,5 +58,7 @@ module.exports = class Event extends Model {
     );
   }
 
-  static associate(db) {}
+  static associate(db) {
+    db.Event.belongsToMany(db.User, { as: 'User', through: 'UserEvent' });
+  }
 };

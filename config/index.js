@@ -4,10 +4,10 @@ dotenv.config();
 
 module.exports = {
   back: {
-    domain: process.env.BACK_DOMAIN || 'https://localhost',
+    domain: process.env.BACK_DOMAIN || 'http://localhost',
     port: process.env.BACK_PORT || 4242,
   },
-  frontUrl: process.env.FRONT_URL || 'https://localhost:3000',
+  frontUrl: process.env.FRONT_URL || 'http://localhost:3000',
   db: {
     port: process.env.DATABASE_PORT || 27017,
     host: process.env.DATABASE_HOST || 'localhost',

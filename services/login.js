@@ -18,7 +18,6 @@ const getUserData = async user => {
       accessToken: user.accessToken,
       refreshToken: user.refreshToken,
     });
-    // await user.save();
     // TODO: logeer - user created
     return newUser;
   }

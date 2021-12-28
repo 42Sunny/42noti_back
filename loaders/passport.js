@@ -80,7 +80,7 @@ const jwtStrategyCallback = async (jwt_payload, done) => {
 
 const jwtExtractor = req => {
   // TODO: logger
-  return req.cookies[env.cookieAuth];
+  return req.cookies[env.cookie.auth];
 };
 
 module.exports = app => {
