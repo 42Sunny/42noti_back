@@ -27,4 +27,8 @@ module.exports = {
       process.env.FORTYTWO_REDIRECT ||
       `${process.env.BACK_DOMAIN}${process.env.BACK_PORT ? `:${process.env.BACK_PORT}` : ''}/login/42/return`,
   },
+  slack: {
+    botToken: process.env.SLACK_BOT_TOKEN,
+    secret: process.env.SLACK_SIGNING_SECRET,
+  }
 };

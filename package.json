@@ -9,6 +9,8 @@
 	},
 	"author": "srngch",
 	"dependencies": {
+		"@slack/bolt": "^3.8.1",
+		"@slack/web-api": "^6.5.1",
 		"axios": "^0.24.0",
 		"connect-ensure-login": "^0.1.1",
 		"cookie-parser": "^1.4.6",
@@ -22,11 +24,13 @@
 		"jsonwebtoken": "^8.5.1",
 		"morgan": "^1.10.0",
 		"mysql2": "^2.3.3",
+		"node-schedule": "^2.1.0",
 		"passport": "^0.5.0",
 		"passport-42": "^1.2.6",
 		"passport-jwt": "^4.0.0",
 		"sequelize": "^6.12.0-beta.1",
 		"sequelize-cli": "^6.3.0",
+		"slack-node": "^0.1.8",
 		"winston": "^3.3.3",
 		"winston-daily-rotate-file": "^4.5.5"
 	},
