@@ -51,21 +51,22 @@ module.exports = {
   },
   getEventsInDb: async query => {
     if (!query) {
+      const now = new Date();
       const events = await Event.findAll({
         where: {
-          beginAt: { [Op.gte]: new Date() },
+          beginAt: { [Op.gte]: now },
         },
         order: [['beginAt', 'DESC']],
         raw: true,
       });
-      return events.map(event => event.dataValues);
+      return events;
     }
     const events = await Event.findAll({
       where: query,
       order: [['beginAt', 'DESC']],
       raw: true,
     });
-    return events.map(event => event.dataValues);
+    return events;
   },
   getEventInDb: async eventId => {
     try {
@@ -116,9 +117,13 @@ module.exports = {
       if (foundUserEvent) {
         return foundUserEvent;
       }
+      const now = new Date();
+      const beforeOneHourThenBeginAt = new Date(event.beginAt.getTime() - (1000 * 60 * 60));
+      const remindAt = beforeOneHourThenBeginAt > now ? beforeOneHourThenBeginAt : NULL;
       const newUserEvent = await UserEvent.create({
         UserId: user.id,
         EventId: event.id,
+        remindAt
       });
       return newUserEvent;
     } catch (err) {

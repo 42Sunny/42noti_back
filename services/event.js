@@ -34,7 +34,7 @@ const isNewEventCreated = async () => {
 
 const isEventUpdated = async (events, eventInDb) => {
   try {
-    const eventFromApi = events.find(e => e.id === eventInDb.intraId);
+    const eventFromApi = await events.find(e => e.id === eventInDb.intraId);
     if (eventInDb.intraUpdatedAt === eventFromApi.updated_at) {
       return false;
     }
@@ -50,23 +50,29 @@ const syncEventsOnDbAndApi = async () => {
   try {
     const eventsFromApi = await get42CampusEvents(SEOUL_CAMPUS_ID);
     if (!eventsFromApi) throw new Error('campus events not found');
-    eventsFromApi.forEach(async eventFromApi => {
-      const eventInDb = await getEventInDb(eventFromApi.id);
-      if (!eventInDb) {
-        const newEvent = await saveEventInDb(
-          normalizeApiEventToSaveInDb(eventFromApi)
-        );
-        console.log('new event created: ', newEvent.title);
-      } else {
-        const needToUpdate = await isEventUpdated(eventsFromApi, eventInDb);
-        if (needToUpdate) {
-          const updatedEvent = await updateEventInDb(
+    return Promise.all(
+      eventsFromApi.map(async eventFromApi => {
+        const eventInDb = await getEventInDb(eventFromApi.id);
+        if (!eventInDb) {
+          const newEvent = await saveEventInDb(
             normalizeApiEventToSaveInDb(eventFromApi),
           );
-          console.log('event updated: ', updatedEvent.title);
+          console.log(
+            `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
+          );
+        } else {
+          const needToUpdate = await isEventUpdated(eventsFromApi, eventInDb);
+          if (needToUpdate) {
+            const updatedEvent = await updateEventInDb(
+              normalizeApiEventToSaveInDb(eventFromApi),
+            );
+            console.log(
+              `🆙 event updated: ${updatedEvent.intraId} ${updatedEvent.title}`,
+            );
+          }
         }
-      }
-    });
+      }),
+    );
   } catch (err) {
     console.error(err);
   }
@@ -77,32 +83,34 @@ const syncUserEventsOnDbAndApi = async intraLoginId => {
     const user = await getUserInDb(intraLoginId);
     const userEventsFromApi = await get42UserEvents(intraLoginId);
     if (!userEventsFromApi) throw new Error('user events not found');
-    userEventsFromApi.forEach(async userEventFromApi => {
-      const eventInDb = await getEventInDb(userEventFromApi.id);
-      if (!eventInDb) {
-        // save event in db
-        const newEvent = await saveEventInDb(
-          normalizeApiEventToSaveInDb(userEventFromApi),
+    return Promise.all(
+      userEventsFromApi.map(async userEventFromApi => {
+        const eventInDb = await getEventInDb(userEventFromApi.id);
+        if (!eventInDb) {
+          const newEvent = await saveEventInDb(
+            normalizeApiEventToSaveInDb(userEventFromApi),
           );
-        console.log('new event created: ', newEvent.title);
-        const newUserEvent = await saveUserEventInDb(user, newEvent);
-        console.log('new user event created: ', newUserEvent.title);
-      } else {
-        const userEventInDb = await UserEvent.findOne({
-          where: {
-            userId: user.id,
-            eventId: eventInDb.id,
-          },
-        });
-        if (!userEventInDb) {
-          const newUserEvent = await saveUserEventInDb(user, eventInDb);
           console.log(
-            'new user event created: ',
-            newUserEvent.title,
+            `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
           );
+          const newUserEvent = await saveUserEventInDb(user, newEvent);
+          console.log(
+            `🆕 new user event created: ${newUserEvent.intraId} ${newUserEvent.title}`,
+          );
+        } else {
+          const userEventInDb = await UserEvent.findOne({
+            where: {
+              userId: user.id,
+              eventId: eventInDb.id,
+            },
+          });
+          if (!userEventInDb) {
+            const newUserEvent = await saveUserEventInDb(user, eventInDb);
+            console.log('new user event created: ', newUserEvent.title);
+          }
         }
-      }
-    });
+      }),
+    );
   } catch (err) {
     console.error(err);
   }
@@ -115,7 +123,9 @@ module.exports = {
     if (!originalData) {
       return null;
     }
-    const data = originalData.map(event => normalizeDbEventToResponse(event));
+    const data = await originalData.map(event =>
+      normalizeDbEventToResponse(event),
+    );
     return data;
   },
   getEvent: async eventId => {

@@ -26,6 +26,8 @@ module.exports = {
   apiSeoulCampusEventsController: async (req, res) => {
     try {
       const data = await getCampusEvents();
+      console.log('apiSeoulCampusEventsController');
+      console.log('data: ', data);
       if (!data) {
         res.status(httpStatus.NOT_FOUND).json({
           message: 'campus events not found',
