@@ -1,28 +1,13 @@
 const httpStatus = require('http-status');
 const jwt = require('jsonwebtoken');
-const env = require('../../config');
-const { getUser } = require('../../services/user');
+const env = require('../config');
 const {
   getCampusEvents,
   getEvent,
   getUserEvents,
-} = require('../../services/event');
+} = require('../services/event.service');
 
 module.exports = {
-  apiUserController: async (req, res) => {
-    const { intraLoginId } = req.params;
-    try {
-      const data = await getUser(intraLoginId);
-      if (!data) {
-        res.status(httpStatus.NOT_FOUND).json({
-          message: 'user not found',
-        });
-      }
-      res.json(data);
-    } catch (err) {
-      console.error(err);
-    }
-  },
   apiSeoulCampusEventsController: async (req, res) => {
     try {
       const data = await getCampusEvents();
@@ -53,9 +38,9 @@ module.exports = {
     }
   },
   apiUserEventsController: async (req, res) => {
-    const { intraLoginId } = req.params;
+    const { intraUsername } = req.params;
     try {
-      const data = await getUserEvents(intraLoginId);
+      const data = await getUserEvents(intraUsername);
       if (!data) {
         res.status(httpStatus.NOT_FOUND).json({
           message: 'user events not found',
@@ -71,10 +56,10 @@ module.exports = {
       req.cookies[env.cookie.auth],
       env.cookie.secret,
     );
-    const intraLoginId = decodedToken.username;
+    const intraUsername = decodedToken.username;
 
     try {
-      const data = await getUserEvents(intraLoginId);
+      const data = await getUserEvents(intraUsername);
       if (!data) {
         res.status(httpStatus.NOT_FOUND).json({
           message: 'my events not found',

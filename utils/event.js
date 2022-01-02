@@ -1,7 +1,7 @@
 const { Op } = require('sequelize');
-const Event = require('../models/event');
-const User = require('../models/user');
-const UserEvent = require('../models/userEvent');
+const Event = require('../models/event.model');
+const User = require('../models/user.model');
+const UserEvent = require('../models/userEvent.model');
 
 module.exports = {
   normalizeApiEventToSaveInDb: originalEvent => {
@@ -39,16 +39,6 @@ module.exports = {
       updatedAt: dbEvent.intraUpdatedAt,
     };
   },
-  getUserInDb: async userId => {
-    const user = await User.findOne({
-      where: { intraLogin: userId },
-      raw: true
-    });
-    if (!user) {
-      return null;
-    }
-    return user;
-  },
   getEventsInDb: async query => {
     if (!query) {
       const now = new Date();
@@ -85,7 +75,7 @@ module.exports = {
   getUserEventsInDb: async userId => {
     try {
       const user = await User.findOne({
-        where: { intraLogin: userId },
+        where: { intraUsername: userId },
       });
       const userEvents = await user.getEvent();
       return userEvents.map(userEvent => userEvent.dataValues);
@@ -118,12 +108,15 @@ module.exports = {
         return foundUserEvent;
       }
       const now = new Date();
-      const beforeOneHourThenBeginAt = new Date(event.beginAt.getTime() - (1000 * 60 * 60));
-      const remindAt = beforeOneHourThenBeginAt > now ? beforeOneHourThenBeginAt : NULL;
+      const beforeOneHourThenBeginAt = new Date(
+        event.beginAt.getTime() - 1000 * 60 * 60,
+      );
+      const remindAt =
+        beforeOneHourThenBeginAt > now ? beforeOneHourThenBeginAt : null;
       const newUserEvent = await UserEvent.create({
         UserId: user.id,
         EventId: event.id,
-        remindAt
+        remindAt,
       });
       return newUserEvent;
     } catch (err) {
@@ -134,12 +127,29 @@ module.exports = {
     try {
       const foundEvent = await Event.findOne({
         where: { intraId: event.intraId },
-        raw: true,
+        // raw: true,
       });
       if (!foundEvent) {
         return null;
       }
       const updatedEvent = await foundEvent.update(event);
+      const foundUserEvent = await UserEvent.findAll({
+        where: { EventId: foundEvent.id },
+        raw: true,
+      });
+      console.log('updateEventInDb');
+      console.log(event.beginAt, typeof event.beginAt);
+      if (foundUserEvent) {
+        const now = new Date();
+        const beforeOneHourThenBeginAt = new Date(
+          event.beginAt.getTime() - 1000 * 60 * 60,
+        );
+        const remindAt =
+          beforeOneHourThenBeginAt > now ? beforeOneHourThenBeginAt : NULL;
+        foundUserEvent.forEach(async userEvent => {
+          await userEvent.update({ remindAt });
+        });
+      }
       return updatedEvent;
     } catch (err) {
       console.error(err);

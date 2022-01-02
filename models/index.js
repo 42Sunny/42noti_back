@@ -1,8 +1,8 @@
 const { Sequelize } = require('sequelize');
 const env = require('../config');
-const Event = require('./event');
-const User = require('./user');
-const userEvent = require('./userEvent');
+const Event = require('./event.model');
+const User = require('./user.model');
+const UserEvent = require('./userEvent.model');
 
 const db = {};
 const sequelize = new Sequelize(
@@ -25,14 +25,14 @@ const sequelize = new Sequelize(
 db.sequelize = sequelize;
 db.Event = Event;
 db.User = User;
-db.userEvent = userEvent;
+db.UserEvent = UserEvent;
 
 Event.init(sequelize);
 User.init(sequelize);
-userEvent.init(sequelize);
+UserEvent.init(sequelize);
 
 Event.associate(db);
 User.associate(db);
-userEvent.associate(db);
+UserEvent.associate(db);
 
 module.exports = db;

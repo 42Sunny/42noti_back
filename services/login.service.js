@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const context = require('express-http-context');
 const env = require('../config');
-const User = require('../models/user');
+const User = require('../models/user.model');
 
 const getUserData = async user => {
   const foundedUser = await User.findOne({
@@ -11,8 +11,9 @@ const getUserData = async user => {
   if (!foundedUser) {
     const newUser = await User.create({
       intraId: user.intraId,
-      intraLogin: user.intraLogin,
+      intraUsername: user.intraUsername,
       intraProfilePageUrl: user.intraProfilePageUrl,
+      displayName: user.displayName,
       email: user.email,
       role: user.role,
       accessToken: user.accessToken,
@@ -32,10 +33,10 @@ const getUserData = async user => {
 const generateToken = user => {
   try {
     const payload = {
-      username: user.intraLogin,
+      username: user.intraUsername,
       sub: user.intraId,
     };
-    context.set('login', user?.intraLogin);
+    context.set('login', user?.intraUsername);
     const token = jwt.sign(payload, env.cookie.secret, { expiresIn: '7d' });
     // TODO: logger
     return token;

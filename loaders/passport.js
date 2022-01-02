@@ -4,7 +4,7 @@ const FortyTwoStrategy = require('passport-42').Strategy;
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const env = require('../config');
-const User = require('../models/user');
+const User = require('../models/user.model');
 
 const fortytwoStrategyCallback = async (
   req,
@@ -17,8 +17,9 @@ const fortytwoStrategyCallback = async (
   console.log('refreshToken ', refreshToken);
   const {
     intraId,
-    intraLogin,
+    intraUsername,
     intraProfilePageUrl,
+    displayName,
     email,
     isStaff,
   } = profile;
@@ -42,12 +43,14 @@ const fortytwoStrategyCallback = async (
     }
     const newUserData = {
       intraId,
-      intraLogin,
+      intraUsername,
       intraProfilePageUrl,
+      displayName,
       email,
       role: isStaff ? 'staff' : 'cadet',
       accessToken,
-      refreshToken: typeof refreshToken === String
+      refreshToken:
+        typeof refreshToken === String
           ? refreshToken
           : refreshToken.access_token,
     };
@@ -93,7 +96,7 @@ module.exports = app => {
         // passReqToCallback: true,
         profileFields: {
           intraId: obj => String(obj.id),
-          intraLogin: 'login',
+          intraUsername: 'login',
           displayName: 'displayname',
           intraProfilePageUrl: 'url',
           email: 'email',

@@ -1,6 +1,6 @@
 const httpStatus = require('http-status');
 const env = require('../config');
-const loginService = require('../services/login');
+const loginService = require('../services/login.service');
 
 module.exports = {
   loginController: async (req, res) => {},

@@ -1,7 +1,7 @@
 const express = require('express');
 const passport = require('passport');
 const env = require('../config');
-const { loginReturnController } = require('../controllers/login');
+const { loginReturnController } = require('../controllers/login.controller');
 
 const router = express.Router();
 

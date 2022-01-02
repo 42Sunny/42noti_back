@@ -8,11 +8,14 @@ module.exports = class User extends Model {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        intraLogin: {
+        intraUsername: {
           type: DataTypes.STRING,
           allowNull: false,
         },
         intraProfilePageUrl: {
+          type: DataTypes.STRING,
+        },
+        displayName: {
           type: DataTypes.STRING,
         },
         email: {

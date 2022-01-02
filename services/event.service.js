@@ -1,6 +1,5 @@
-const Event = require('../models/event');
-const User = require('../models/user');
-const UserEvent = require('../models/userEvent');
+const Event = require('../models/event.model');
+const UserEvent = require('../models/userEvent.model');
 const {
   get42CampusEvents,
   get42UserEvents,
@@ -9,7 +8,6 @@ const {
 const {
   normalizeApiEventToSaveInDb,
   normalizeDbEventToResponse,
-  getUserInDb,
   getEventsInDb,
   getEventInDb,
   getUserEventsInDb,
@@ -17,6 +15,9 @@ const {
   saveUserEventInDb,
   updateEventInDb,
 } = require('../utils/event');
+const {
+  getUserInDb,
+} = require('../utils/user');
 
 const isNewEventCreated = async () => {
   try {
@@ -78,10 +79,10 @@ const syncEventsOnDbAndApi = async () => {
   }
 };
 
-const syncUserEventsOnDbAndApi = async intraLoginId => {
+const syncUserEventsOnDbAndApi = async intraUsername => {
   try {
-    const user = await getUserInDb(intraLoginId);
-    const userEventsFromApi = await get42UserEvents(intraLoginId);
+    const user = await getUserInDb(intraUsername);
+    const userEventsFromApi = await get42UserEvents(intraUsername);
     if (!userEventsFromApi) throw new Error('user events not found');
     return Promise.all(
       userEventsFromApi.map(async userEventFromApi => {
@@ -136,11 +137,11 @@ module.exports = {
     const data = normalizeDbEventToResponse(originalData);
     return data;
   },
-  getUserEvents: async intraLoginId => {
-    const user = await getUserInDb(intraLoginId);
+  getUserEvents: async intraUsername => {
+    const user = await getUserInDb(intraUsername);
     if (!user) {
       // Cadet who is never logged in.
-      const originalData = await get42UserEvents(intraLoginId);
+      const originalData = await get42UserEvents(intraUsername);
       if (!originalData) {
         return null;
       }
@@ -149,8 +150,8 @@ module.exports = {
       );
       return data;
     }
-    await syncUserEventsOnDbAndApi(intraLoginId);
-    const originalData = await getUserEventsInDb(intraLoginId);
+    await syncUserEventsOnDbAndApi(intraUsername);
+    const originalData = await getUserEventsInDb(intraUsername);
     if (!originalData) {
       return null;
     }
