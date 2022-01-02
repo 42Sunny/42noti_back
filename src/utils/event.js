@@ -21,6 +21,8 @@ module.exports = {
     };
   },
   normalizeDbEventToResponse: dbEvent => {
+    const parse = JSON.parse(dbEvent.tags);
+    const tags = parse.map(tag => tag.name);
     return {
       id: dbEvent.intraId, // NOTE: or dbEvent.id ?
       title: dbEvent.title,
@@ -31,10 +33,7 @@ module.exports = {
       currentSubscribers: dbEvent.currentSubscribers,
       beginAt: dbEvent.beginAt,
       endAt: dbEvent.endAt,
-      tags: () => {
-        const parse = JSON.parse(dbEvent.tags);
-        return parse.map(tag => tag.name);
-      },
+      tags,
       createdAt: dbEvent.intraCreatedAt,
       updatedAt: dbEvent.intraUpdatedAt,
     };
