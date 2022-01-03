@@ -43,7 +43,7 @@ module.exports = {
       const now = new Date();
       const events = await Event.findAll({
         where: {
-          beginAt: { [Op.gte]: now },
+          endAt: { [Op.gte]: now },
         },
         order: [['beginAt', 'DESC']],
         raw: true,
