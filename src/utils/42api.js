@@ -1,11 +1,11 @@
 const axios = require('axios');
-const { get42Token } = require('./42auth');
+const { get42TokenCache } = require('./42auth');
 
 const END_POINT_42_API = 'https://api.intra.42.fr';
 
 const get42ApiWithToken = async path => {
   try {
-    const { access_token, token_type } = await get42Token();
+    const { access_token, token_type } = await get42TokenCache();
     console.log(`${token_type} ${access_token}`);
     const response = await axios(`${END_POINT_42_API}/${path}`, {
       method: 'GET',

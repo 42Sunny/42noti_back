@@ -103,7 +103,7 @@ const sendMessage = async (channelId, message) => {
   try {
     const result = await client.chat.postMessage({
       channel: channelId,
-      text: "",
+      text: message,
       blocks: [
         {
           type: 'section',

@@ -141,7 +141,7 @@ module.exports = {
       if (foundUserEvent) {
         const now = new Date();
         const beforeOneHourThenBeginAt = new Date(
-          event.beginAt.getTime() - 1000 * 60 * 60,
+          new Date(event.beginAt).getTime() - 1000 * 60 * 60,
         );
         const remindAt =
           beforeOneHourThenBeginAt > now ? beforeOneHourThenBeginAt : NULL;
