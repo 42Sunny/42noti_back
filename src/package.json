@@ -1,0 +1,46 @@
+{
+  "name": "42event-server",
+  "version": "0.0.1",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "author": "srngch",
+  "dependencies": {
+    "@slack/bolt": "^3.8.1",
+    "@slack/web-api": "^6.5.1",
+    "axios": "^0.24.0",
+    "connect-ensure-login": "^0.1.1",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-http-context": "^1.2.4",
+    "express-session": "^1.17.2",
+    "http-errors": "^1.8.1",
+    "http-status": "^1.5.0",
+    "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.10.0",
+    "mysql2": "^2.3.3",
+    "node-cache": "^5.1.2",
+    "node-schedule": "^2.1.0",
+    "passport": "^0.5.0",
+    "passport-42": "^1.2.6",
+    "passport-jwt": "^4.0.0",
+    "sequelize": "^6.12.0-beta.1",
+    "sequelize-cli": "^6.3.0",
+    "slack-node": "^0.1.8",
+    "winston": "^3.3.3",
+    "winston-daily-rotate-file": "^4.5.5"
+  },
+  "devDependencies": {
+    "eslint": "^8.3.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.3",
+    "nodemon": "^2.0.15",
+    "prettier": "2.4.1"
+  }
+}

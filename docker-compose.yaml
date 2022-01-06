@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  proxy:
+    container_name: ft-proxy
+    image: nginx:latest
+    depends_on:
+      - mysqldb
+      - app
+    ports:
+      - "80:80"
+    volumes:
+      - ./proxy/nginx.conf:/etc/nginx/nginx.conf
+  mysqldb:
+    container_name: ft-mysql
+    image: mysql:5.7
+    restart: unless-stopped
+    env_file: ./.env
+    environment:
+      - MYSQL_ROOT_PASSWORD=$MYSQLDB_ROOT_PASSWORD
+      - MYSQL_DATABASE=$MYSQLDB_DATABASE
+    ports:
+      - $MYSQLDB_LOCAL_PORT:$MYSQLDB_DOCKER_PORT
+    volumes:
+      - db:/var/lib/mysql
+  app:
+    container_name: ft-app
+    depends_on:
+      - mysqldb
+    build: ./src
+    image: meetup-app
+    restart: unless-stopped
+    env_file: ./.env
+    ports:
+      - $NODE_LOCAL_PORT:$NODE_DOCKER_PORT
+    environment:
+      - DATABASE_PORT=$MYSQLDB_DOCKER_PORT
+      - DATABASE_HOST=ft-mysql
+      - DATABASE_USERNAME=$MYSQLDB_USER
+      - DATABASE_PASSWORD=$MYSQLDB_ROOT_PASSWORD
+      - DATABASE_NAME=$MYSQLDB_DATABASE
+      - BACK_PORT=$NODE_DOCKER_PORT
+    stdin_open: true
+    tty: true
+
+volumes:
+  db:
