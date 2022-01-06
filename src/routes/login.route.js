@@ -8,25 +8,28 @@ const router = express.Router();
 router.get(
   '/42/return',
   passport.authenticate('42', {
-    failureRedirect: `/login`,
+    failureRedirect: env.frontUrl,
   }),
   loginReturnController,
 );
 
-const authenticate42withCustomCallback = (req, res, next) => {
-  passport.authenticate('42', (err, user, info) => {
-    if (err) {
-      return next(err);
-    }
-    if (!user) {
-      return res.redirect(env.frontUrl);
-    }
-  })(req, res, next);
-};
-
 router.get(
   '/42',
-  authenticate42withCustomCallback,
+  async (req, res, next) => {
+    // NOTE: temporary solution
+    const jwt = req.cookies[env.cookie.auth];
+    console.log('`/42` req.isAuthenticated:', req.isAuthenticated());
+
+    if (jwt || req.isAuthenticated()) {
+      console.log('req.user: ', req.user);
+      return res.redirect(env.frontUrl);
+    }
+    next();
+  },
+  passport.authenticate('42', {
+    failureRedirect: env.frontUrl,
+  }),
+
 );
 
 module.exports = router;

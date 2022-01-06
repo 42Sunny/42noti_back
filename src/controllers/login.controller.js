@@ -8,7 +8,7 @@ module.exports = {
     try {
       // TODO: logger
       const { token, cookieOption } = await loginService.getToken(
-        req.user?.meetupData,
+        req.user?.ft,
       );
       res.cookie(env.cookie.auth, token, cookieOption);
       res

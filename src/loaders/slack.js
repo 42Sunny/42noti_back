@@ -6,5 +6,5 @@ const initServer = async () => {
 };
 
 module.exports = async () => {
-  initServer();
+  // initServer();
 };

@@ -69,7 +69,6 @@ const findUserIdByUsername = async username => {
 };
 
 const findDmChannelId = async username => {
-  console.log('findDmChannelId: ', username);
   try {
     console.log(username);
     const userId = await findUserIdByUsername(username);
@@ -77,6 +76,10 @@ const findDmChannelId = async username => {
       token: SLACK_BOT_TOKEN,
       users: userId,
     });
+    if (result.ok === false) {
+      console.log('Error(findDmChannelId): ', username, result.error);
+      return null;
+    }
 
     return result.channel.id;
   } catch (error) {
@@ -92,6 +95,9 @@ const findDmChannelIdCache = async username => {
       return cached;
     }
     const result = await findDmChannelId(username);
+    if (!result) {
+      return null;
+    }
     cache.set(`slack-dmChannelId-${username}`, result);
     return result;
   } catch (error) {
@@ -174,7 +180,7 @@ const sendEventReminder = async (channelId, event) => {
                 emoji: true,
               },
               value: 'click_me_123',
-              url: `https://event.42cadet.kr/event/${event.intraId}`,
+              url: `${env.frontUrl}/event/${event.intraId}`,
               action_id: 'actionId-0',
             },
           ],

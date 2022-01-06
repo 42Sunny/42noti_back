@@ -13,6 +13,7 @@ const fortytwoStrategyCallback = async (
   profile,
   done,
 ) => {
+  console.log('fortytwoStrategyCallback');
   console.log('accessToken ', accessToken);
   console.log('refreshToken ', refreshToken);
   const {
@@ -39,7 +40,7 @@ const fortytwoStrategyCallback = async (
       foundedUser.email = email;
 
       await foundedUser.save();
-      return done(null, { meetupData: foundedUser });
+      return done(null, { ft: foundedUser });
     }
     const newUserData = {
       intraId,
@@ -54,7 +55,7 @@ const fortytwoStrategyCallback = async (
           ? refreshToken
           : refreshToken.access_token,
     };
-    return done(null, { meetupData: newUserData });
+    return done(null, { ft: newUserData });
   } catch (err) {
     done(err);
   }

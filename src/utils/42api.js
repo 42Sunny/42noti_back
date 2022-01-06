@@ -7,7 +7,7 @@ const get42ApiWithToken = async path => {
   try {
     const { access_token, token_type } = await get42TokenCache();
     console.log(`${token_type} ${access_token}`);
-    const response = await axios(`${END_POINT_42_API}/${path}`, {
+    const response = await axios(`${END_POINT_42_API}${path}`, {
       method: 'GET',
       headers: {
         Authorization: `${token_type} ${access_token}`,
@@ -56,8 +56,13 @@ module.exports = {
       console.error(err);
     }
   },
-  get42CampusEvents: async campusId => {
-    const path = `/v2/campus/${campusId}/events?filter[future]=true`;
+  get42CampusUpComingEvents: async campusId => {
+    // const path = `/v2/campus/${campusId}/events?filter[future]=true`;
+    const now = new Date();
+    const future = new Date('9999-12-31T00:00:00.000Z');
+    const path =
+      `/v2/campus/${campusId}/events` +
+      `?range[end_at]=${now.toISOString()},${future.toISOString()}`;
     try {
       const data = await get42ApiWithToken(path);
       if (data) {
@@ -67,8 +72,9 @@ module.exports = {
       console.error(err);
     }
   },
-  get42CampusNewestEvents: async campusId => {
-    const path = `/v2/campus/${campusId}/events?sort=-id&page[size]=1`;
+  get42CampusRecentThirtyEvents: async campusId => {
+    const path = `/v2/campus/${campusId}/events?page[size]=30`; // recent 30 events
+    // TODO: path for all events in campus
     try {
       const data = await get42ApiWithToken(path);
       if (data) {
@@ -91,6 +97,20 @@ module.exports = {
   },
   get42UserEvents: async userId => {
     const path = `/v2/users/${userId}/events`;
+    try {
+      const data = await get42ApiWithToken(path);
+      if (data) {
+        return data;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  },
+  get42RecentUserEvents: async (userId, recentEventId) => {
+    // get user events from `recentEventId` to now
+    const path =
+      `/v2/users/${userId}/events` +
+      `?sort=-id&range[id]=${recentEventId},99999999`;
     try {
       const data = await get42ApiWithToken(path);
       if (data) {

@@ -5,14 +5,15 @@ const {
   getCampusEvents,
   getEvent,
   getUserEvents,
+  getUserEventReminderStatus,
+  setUserEventReminderOn,
+  setUserEventReminderOff,
 } = require('../services/event.service');
 
 module.exports = {
   apiSeoulCampusEventsController: async (req, res) => {
     try {
       const data = await getCampusEvents();
-      console.log('apiSeoulCampusEventsController');
-      console.log('data: ', data);
       if (!data) {
         res.status(httpStatus.NOT_FOUND).json({
           message: 'campus events not found',
@@ -66,6 +67,90 @@ module.exports = {
         });
       }
       res.json(data);
+      console.log('** after my events');
+    } catch (err) {
+      console.error(err);
+    }
+  },
+  apiUserEventReminderStatusController: async (req, res) => {
+    const decodedToken = jwt.verify(
+      req.cookies[env.cookie.auth],
+      env.cookie.secret,
+    );
+    const intraUsername = decodedToken.username;
+    const { eventId } = req.params;
+
+    try {
+      const event = await getEvent(eventId);
+      if (!event) {
+        res.status(httpStatus.NOT_FOUND).json({
+          message: 'event not found',
+        });
+      }
+
+      const status = await getUserEventReminderStatus(intraUsername, eventId);
+      if (status === null) {
+        res.status(httpStatus.NOT_FOUND).json({
+          message: 'user event reminder status not found',
+        });
+      }
+      console.log('status: ', status);
+      res.json({
+        reminder: status,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  },
+  apiUserEventReminderOnController: async (req, res) => {
+    const decodedToken = jwt.verify(
+      req.cookies[env.cookie.auth],
+      env.cookie.secret,
+    );
+    const intraUsername = decodedToken.username;
+    const { eventId } = req.params;
+
+    try {
+      const event = await getEvent(eventId);
+      if (!event) {
+        res.status(httpStatus.NOT_FOUND).json({
+          message: 'event not found',
+        });
+      }
+
+      const beforeOneHour = new Date(event.beginAt - 1000 * 60 * 60);
+      // const beforeFiveMinutes = new Date(event.beginAt - 1000 * 60 * 5);
+      setUserEventReminderOn(intraUsername, eventId, beforeOneHour);
+      res.json({
+        reminder: true,
+        remindAt: beforeOneHour,
+        event: event,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  },
+  apiUserEventReminderOffController: async (req, res) => {
+    const decodedToken = jwt.verify(
+      req.cookies[env.cookie.auth],
+      env.cookie.secret,
+    );
+    const intraUsername = decodedToken.username;
+    const { eventId } = req.params;
+
+    try {
+      const event = await getEvent(eventId);
+      if (!event) {
+        res.status(httpStatus.NOT_FOUND).json({
+          message: 'event not found',
+        });
+      }
+
+      setUserEventReminderOff(intraUsername, eventId);
+      res.json({
+        reminder: false,
+        event: event,
+      });
     } catch (err) {
       console.error(err);
     }
