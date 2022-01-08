@@ -6,6 +6,7 @@ const {
   getEventsInDb,
   getEventInDb,
   getUserEventsInDb,
+  getUserEventInDb,
   syncUserEventsOnDbAndApi,
 } = require('../utils/event');
 const { getUserInDb } = require('../utils/user');
@@ -30,24 +31,20 @@ module.exports = {
     return data;
   },
   getUserEvents: async intraUsername => {
-    const user = await getUserInDb(intraUsername);
-    if (!user) {
-      // Cadet who is never logged in.
-      const originalData = await get42UserEvents(intraUsername);
-      if (!originalData) {
-        return null;
-      }
-      const data = originalData.map(event =>
-        normalizeDbEventToResponse(normalizeApiEventToSaveInDb(event)),
-      );
-      return data;
-    }
-    await syncUserEventsOnDbAndApi(intraUsername);
+    await syncUserEventsOnDbAndApi(intraUsername); // TODO: do this only force update.
     const originalData = await getUserEventsInDb(intraUsername);
     if (!originalData) {
       return null;
     }
     const data = originalData.map(event => normalizeDbEventToResponse(event));
+    return data;
+  },
+  getUserEvent: async (intraUsername, eventId) => {
+    const originalData = await getUserEventInDb(intraUsername, eventId);
+    if (!originalData) {
+      return null;
+    }
+    const data = normalizeDbEventToResponse(originalData);
     return data;
   },
   getUserEventReminderStatus: async (intraUsername, eventId) => {
@@ -66,7 +63,7 @@ module.exports = {
         return null;
       }
       console.log('userEvent: ', userEvent);
-      return userEvent.setReminder ? true : false;
+      return userEvent.isSetReminder ? true : false;
     } catch (err) {
       console.error(err);
     }
@@ -85,7 +82,7 @@ module.exports = {
       if (!userEvent) {
         return null;
       }
-      userEvent.setReminder = true;
+      userEvent.isSetReminder = true;
       userEvent.remindAt = remindAt;
       await userEvent.save();
       return userEvent;
@@ -107,7 +104,7 @@ module.exports = {
       if (!userEvent) {
         return null;
       }
-      userEvent.setReminder = false;
+      userEvent.isSetReminder = false;
       userEvent.remindAt = null;
       await userEvent.save();
       return userEvent;

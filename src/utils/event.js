@@ -9,7 +9,7 @@ const {
 } = require('./42api');
 const { getUserInDb } = require('./user');
 
-const normalizeApiEventToSaveInDb = originalEvent => {
+const normalizeApiEventToSaveInDb = (originalEvent, source) => {
   return {
     intraId: originalEvent.id,
     title: originalEvent.name,
@@ -23,10 +23,13 @@ const normalizeApiEventToSaveInDb = originalEvent => {
     tags: JSON.stringify(originalEvent.themes),
     intraCreatedAt: originalEvent.created_at,
     intraUpdatedAt: originalEvent.updated_at,
+    source,
   };
 };
 
 const normalizeDbEventToResponse = dbEvent => {
+  console.log('dbEvent: ', dbEvent);
+  console.log('dbEvent.tags: ', dbEvent.tags);
   const parse = JSON.parse(dbEvent.tags);
   const tags = parse.map(tag => tag.name);
   return {
@@ -87,9 +90,34 @@ const getUserEventsInDb = async userId => {
     });
     const userEvents = await user.getEvent({
       order: [['beginAt', 'DESC']],
+      where: {
+        isSetReminder: true,
+      },
       raw: true,
     });
     return userEvents;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const getUserEventInDb = async (userId, eventId) => {
+  try {
+    const user = await User.findOne({
+      where: { intraUsername: userId },
+    });
+    const event = await Event.findOne({
+      where: { intraId: eventId },
+      raw: true
+    });
+    const userEvent = await user.getEvent({
+      where: { id: event.id },
+      raw: true,
+    });
+    if (!userEvent) {
+      return null;
+    }
+    return event;
   } catch (err) {
     console.error(err);
   }
@@ -111,8 +139,16 @@ const saveEventInDb = async event => {
   }
 };
 
-const saveUserEventInDb = async (user, event) => {
+const saveUserEventInDb = async (intraUsername, eventId, settings) => {
+  const { isSubscribedOnIntra, isSetReminder } = settings;
+
   try {
+    const user = await User.findOne({
+      where: { intraUsername: intraUsername },
+    });
+    const event = await Event.findOne({
+      where: { intraId: eventId },
+    });
     const foundUserEvent = await UserEvent.findOne({
       where: { UserId: user.id, EventId: event.id },
       raw: true,
@@ -129,6 +165,8 @@ const saveUserEventInDb = async (user, event) => {
     const newUserEvent = await UserEvent.create({
       UserId: user.id,
       EventId: event.id,
+      isSubscribedOnIntra,
+      isSetReminder,
       remindAt,
     });
     return newUserEvent;
@@ -220,6 +258,8 @@ const syncUpComingEventsOnDbAndApi = async () => {
   }
 };
 
+const SOURCE_42_API = 1;
+
 const syncRecentThirtyEventsOnDbAndApi = async () => {
   try {
     const eventsFrom42Api = await get42CampusRecentThirtyEvents(
@@ -231,7 +271,7 @@ const syncRecentThirtyEventsOnDbAndApi = async () => {
       if (!eventInDb) {
         // save new event in db
         const newEvent = await saveEventInDb(
-          normalizeApiEventToSaveInDb(eventFromApi),
+          normalizeApiEventToSaveInDb(eventFromApi, SOURCE_42_API),
         );
         console.log(
           `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
@@ -278,7 +318,14 @@ const syncUserEventsOnDbAndApi = async intraUsername => {
         console.log(
           `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
         );
-        const newUserEvent = await saveUserEventInDb(user, newEvent);
+        const newUserEvent = await saveUserEventInDb(
+          user.intraUsername,
+          newEvent.intraId,
+          {
+            isSubscribedOnIntra: true,
+            isSetReminder: false,
+          },
+        );
         console.log(
           `🆕 new user event created: ` +
             `${newUserEvent.intraId} ${newUserEvent.title}`,
@@ -291,7 +338,14 @@ const syncUserEventsOnDbAndApi = async intraUsername => {
           },
         });
         if (!userEventInDb) {
-          const newUserEvent = await saveUserEventInDb(user, eventInDb);
+          const newUserEvent = await saveUserEventInDb(
+            user.intraUsername,
+            eventInDb.intraId,
+            {
+              isSubscribedOnIntra: true,
+              isSetReminder: false,
+            },
+          );
           console.log('🆕 new user event created: ', newUserEvent.title);
         }
       }
@@ -323,7 +377,9 @@ module.exports = {
   normalizeDbEventToResponse,
   getEventsInDb,
   getEventInDb,
+  saveUserEventInDb,
   getUserEventsInDb,
+  getUserEventInDb,
   syncUpComingEventsOnDbAndApi,
   syncRecentThirtyEventsOnDbAndApi,
   syncUserEventsOnDbAndApi,

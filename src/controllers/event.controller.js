@@ -4,11 +4,14 @@ const env = require('../config');
 const {
   getCampusEvents,
   getEvent,
+  getUserEvent,
   getUserEvents,
   getUserEventReminderStatus,
   setUserEventReminderOn,
   setUserEventReminderOff,
 } = require('../services/event.service');
+const { getUser } = require('../services/user.service');
+const { saveUserEventInDb } = require('../utils/event');
 
 module.exports = {
   apiSeoulCampusEventsController: async (req, res) => {
@@ -41,6 +44,12 @@ module.exports = {
   apiUserEventsController: async (req, res) => {
     const { intraUsername } = req.params;
     try {
+      const user = await getUser(intraUsername);
+      if (!user) {
+        res.status(httpStatus.NOT_FOUND).json({
+          message: 'user not found',
+        });
+      }
       const data = await getUserEvents(intraUsername);
       if (!data) {
         res.status(httpStatus.NOT_FOUND).json({
@@ -87,14 +96,20 @@ module.exports = {
           message: 'event not found',
         });
       }
+      if (event.beginAt < new Date()) {
+        res.json({
+          message: 'event is already started.',
+          reminder: null,
+        });
+      }
 
+      // TODO: remove about intra subscribe state
       const status = await getUserEventReminderStatus(intraUsername, eventId);
       if (status === null) {
         res.status(httpStatus.NOT_FOUND).json({
-          message: 'user event reminder status not found',
+          message: 'user event not found',
         });
       }
-      console.log('status: ', status);
       res.json({
         reminder: status,
       });
@@ -111,19 +126,45 @@ module.exports = {
     const { eventId } = req.params;
 
     try {
+      const user = await getUser(intraUsername);
+      if (!user) {
+        res.status(httpStatus.NOT_FOUND).json({
+          message: 'user not found',
+        });
+      }
       const event = await getEvent(eventId);
       if (!event) {
         res.status(httpStatus.NOT_FOUND).json({
           message: 'event not found',
         });
       }
+      const now = new Date();
+      if (event.beginAt < now) {
+        res.json({
+          message: 'event is already started.',
+          reminder: null,
+        });
+      }
 
+      const userEvent = await getUserEvent(intraUsername, eventId);
+      if (!userEvent) {
+        await saveUserEventInDb(intraUsername, eventId, {
+          isSubscribedOnIntra: false,
+          isSetReminder: true,
+        });
+      }
+
+      // TODO: array to save multiple remindAt
       const beforeOneHour = new Date(event.beginAt - 1000 * 60 * 60);
       // const beforeFiveMinutes = new Date(event.beginAt - 1000 * 60 * 5);
-      setUserEventReminderOn(intraUsername, eventId, beforeOneHour);
+      const userEventStatus = await setUserEventReminderOn(
+        intraUsername,
+        eventId,
+        beforeOneHour < now ? now : beforeOneHour,
+      );
       res.json({
-        reminder: true,
-        remindAt: beforeOneHour,
+        reminder: userEventStatus.dataValues.isSetReminder,
+        remindAt: userEventStatus.dataValues.remindAt,
         event: event,
       });
     } catch (err) {
@@ -139,16 +180,31 @@ module.exports = {
     const { eventId } = req.params;
 
     try {
+      const user = await getUser(intraUsername);
+      if (!user) {
+        res.status(httpStatus.NOT_FOUND).json({
+          message: 'user not found',
+        });
+      }
       const event = await getEvent(eventId);
       if (!event) {
         res.status(httpStatus.NOT_FOUND).json({
           message: 'event not found',
         });
       }
+      const userEvent = await getUserEvent(intraUsername, eventId);
+      if (!userEvent) {
+        res.status(httpStatus.NOT_FOUND).json({
+          message: 'user event not found',
+        });
+      }
 
-      setUserEventReminderOff(intraUsername, eventId);
+      const userEventStatus = await setUserEventReminderOff(
+        intraUsername,
+        eventId,
+      );
       res.json({
-        reminder: false,
+        reminder: userEventStatus.isSetReminder,
         event: event,
       });
     } catch (err) {

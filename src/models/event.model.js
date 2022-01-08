@@ -50,6 +50,17 @@ module.exports = class Event extends Model {
           type: DataTypes.TEXT,
           allowNull: false,
         },
+        source: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          comment: '42api-1, admin-2, cadet-3, test-4',
+          /*
+           * 1. 42api: from 42 api
+           * 2. admin: from 42Event admin
+           * 3. cadet: for meetup from 42Event frontend
+           * 4. test: from test api
+           */
+        },
       },
       {
         sequelize,

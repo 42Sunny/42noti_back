@@ -13,10 +13,13 @@ module.exports = class UserEvent extends Model {
         remindAt: {
           type: DataTypes.DATE,
         },
-        setReminder: {
+        isSetReminder: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
-          defaultValue: true,
+        },
+        isSubscribedOnIntra: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
         },
       },
       {
