@@ -31,7 +31,7 @@ module.exports = {
     return data;
   },
   getUserEvents: async intraUsername => {
-    await syncUserEventsOnDbAndApi(intraUsername); // TODO: do this only force update.
+    // await syncUserEventsOnDbAndApi(intraUsername); // TODO: do this only force update.
     const originalData = await getUserEventsInDb(intraUsername);
     if (!originalData) {
       return null;

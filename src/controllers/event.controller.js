@@ -67,6 +67,7 @@ module.exports = {
       env.cookie.secret,
     );
     const intraUsername = decodedToken.username;
+    const range = req.query.range;
 
     try {
       const data = await getUserEvents(intraUsername);
@@ -75,8 +76,19 @@ module.exports = {
           message: 'my events not found',
         });
       }
-      res.json(data);
-      console.log('** after my events');
+      if (range == 'all') {
+        res.json(data);
+      }
+      if (range == 'upcoming') {
+        const upcomingEvents = data.filter(
+          event => event.beginAt >= new Date(),
+        );
+        res.json(upcomingEvents);
+      }
+      if (range == 'past') {
+        const pastEvents = data.filter(event => event.beginAt < new Date());
+        res.json(pastEvents);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -192,7 +204,16 @@ module.exports = {
           message: 'event not found',
         });
       }
+      const now = new Date();
+      if (event.beginAt < now) {
+        res.json({
+          message: 'event is already started.',
+          reminder: null,
+        });
+      }
+
       const userEvent = await getUserEvent(intraUsername, eventId);
+      console.log('userEvent: ', userEvent);
       if (!userEvent) {
         res.status(httpStatus.NOT_FOUND).json({
           message: 'user event not found',

@@ -73,7 +73,7 @@ module.exports = {
     }
   },
   get42CampusRecentThirtyEvents: async campusId => {
-    const path = `/v2/campus/${campusId}/events?page[size]=30`; // recent 30 events
+    const path = `/v2/campus/${campusId}/events` + `?page[size]=30&sort=-begin_at,-id`; // recent 30 events
     // TODO: path for all events in campus
     try {
       const data = await get42ApiWithToken(path);
