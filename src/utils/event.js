@@ -203,7 +203,6 @@ const updateEventInDb = async event => {
     const updatedEvent = await foundEvent.update(event);
     const foundUserEvent = await UserEvent.findAll({
       where: { EventId: foundEvent.id },
-      raw: true,
     });
     console.log('updateEventInDb');
     console.log(event.beginAt, typeof event.beginAt);
