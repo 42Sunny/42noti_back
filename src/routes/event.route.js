@@ -6,6 +6,9 @@ const {
   apiUserEventReminderStatusController,
   apiUserEventReminderOnController,
   apiUserEventReminderOffController,
+  postEventController,
+  putEventController,
+  deleteEventController,
 } = require('../controllers/event.controller');
 
 const router = express.Router();
@@ -25,7 +28,12 @@ router.delete(
   passport.authenticate('jwt'),
   apiUserEventReminderOffController,
 );
+
 router.get('/:eventId', apiEventController);
 router.get('/', apiSeoulCampusEventsController);
+
+router.post('/', passport.authenticate('jwt'), postEventController);
+router.put('/:eventId', passport.authenticate('jwt'), putEventController);
+router.delete('/:eventId', passport.authenticate('jwt'), deleteEventController);
 
 module.exports = router;

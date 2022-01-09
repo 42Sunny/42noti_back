@@ -11,7 +11,57 @@ const {
   setUserEventReminderOff,
 } = require('../services/event.service');
 const { getUser } = require('../services/user.service');
-const { saveUserEventInDb } = require('../utils/event');
+const { saveEventInDb, saveUserEventInDb } = require('../utils/event');
+
+const postEventController = async (req, res) => {
+  const decodedToken = jwt.verify(
+    req.cookies[env.cookie.auth],
+    env.cookie.secret,
+  );
+  const intraUsername = decodedToken.username;
+
+  const user = await getUser(intraUsername);
+  console.log(`user: ${user.intraUsername}(${user.role})`);
+
+  const body = req.body;
+  if (body.source !== 'mock') {
+    return res.status(httpStatus.BAD_REQUEST).send('Bad Request');
+  }
+
+  const tags = body.event.tags.map(tag => {
+    return { name: tag };
+  });
+  const eventData = {
+    intraId: null,
+    intraCreatedAt: null,
+    intraUpdatedAt: null,
+    title: body.event.title,
+    description: body.event.description,
+    location: body.event.location,
+    maxSubscribers: body.event.maxSubscribers,
+    currentSubscribers: 0,
+    beginAt: body.event.beginAt,
+    endAt: body.event.endAt,
+    category: body.event.category,
+    tags: JSON.stringify(tags),
+  };
+  let source;
+  if (body.source === '42api') source = 1;
+  else if (body.source === 'admin') source = 2;
+  else if (body.source === 'cadet') source = 3;
+  else if (body.source === 'mock') source = 4;
+  else source = 0;
+
+  const event = await saveEventInDb(eventData, source);
+  const parse = JSON.parse(event.dataValues.tags);
+  const resTags = parse.map(tag => tag.name);
+  return res.status(httpStatus.OK).send({
+    ...event.dataValues,
+    tags: resTags
+  });
+};
+const putEventController = async (req, res) => {};
+const deleteEventController = async (req, res) => {};
 
 module.exports = {
   apiSeoulCampusEventsController: async (req, res) => {
@@ -232,4 +282,7 @@ module.exports = {
       console.error(err);
     }
   },
+  postEventController,
+  putEventController,
+  deleteEventController,
 };

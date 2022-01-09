@@ -6,15 +6,12 @@ module.exports = class Event extends Model {
       {
         intraId: {
           type: DataTypes.INTEGER,
-          allowNull: false,
         },
         intraCreatedAt: {
           type: DataTypes.STRING,
-          allowNull: false,
         },
         intraUpdatedAt: {
           type: DataTypes.STRING,
-          allowNull: false,
         },
         title: {
           type: DataTypes.STRING,
@@ -53,12 +50,12 @@ module.exports = class Event extends Model {
         source: {
           type: DataTypes.INTEGER,
           allowNull: false,
-          comment: '42api-1, admin-2, cadet-3, test-4',
+          comment: '42api-1, admin-2, cadet-3, mock-4',
           /*
            * 1. 42api: from 42 api
            * 2. admin: from 42Event admin
            * 3. cadet: for meetup from 42Event frontend
-           * 4. test: from test api
+           * 4. mock: mock event for test
            */
         },
       },

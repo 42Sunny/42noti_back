@@ -30,6 +30,8 @@ const normalizeApiEventToSaveInDb = (originalEvent, source) => {
 const normalizeDbEventToResponse = dbEvent => {
   const parse = JSON.parse(dbEvent.tags);
   const tags = parse.map(tag => tag.name);
+  const createdAt = dbEvent.intraCreatedAt ? dbEvent.intraCreatedAt : dbEvent.createdAt;
+  const updatedAt = dbEvent.intraUpdatedAt ? dbEvent.intraUpdatedAt : dbEvent.updatedAt;
   return {
     id: dbEvent.id,
     intraId: dbEvent.intraId,
@@ -42,8 +44,8 @@ const normalizeDbEventToResponse = dbEvent => {
     beginAt: dbEvent.beginAt,
     endAt: dbEvent.endAt,
     tags,
-    createdAt: dbEvent.intraCreatedAt,
-    updatedAt: dbEvent.intraUpdatedAt,
+    createdAt,
+    updatedAt,
   };
 };
 
@@ -128,17 +130,23 @@ const getUserEventInDb = async (intraUsername, eventId) => {
   }
 };
 
-const saveEventInDb = async event => {
+const saveEventInDb = async (event, source) => {
   try {
-    const where = event.id ? { id: event.id } : { intraId: event.intraId };
-    const existingEvent = await Event.findOne({
-      where,
-      raw: true,
-    });
-    if (existingEvent) {
-      return existingEvent;
+    if (source === 1) {
+      const where = event.id ? { id: event.id } : { intraId: event.intraId };
+      const existingEvent = await Event.findOne({
+        where,
+        raw: true,
+      });
+      if (existingEvent) {
+        return existingEvent;
+      }
     }
-    const newEvent = await Event.create(event);
+    const newEvent = await Event.create({
+      ...event,
+      source,
+    });
+    console.log(newEvent);
     return newEvent;
   } catch (err) {
     console.error(err);
@@ -243,6 +251,7 @@ const syncUpComingEventsOnDbAndApi = async () => {
         // save new event in db
         const newEvent = await saveEventInDb(
           normalizeApiEventToSaveInDb(event42),
+          1 // '42api'
         );
         console.log(
           `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
@@ -281,8 +290,8 @@ const syncRecentThirtyEventsOnDbAndApi = async () => {
         // save new event in db
         const newEvent = await saveEventInDb(
           normalizeApiEventToSaveInDb(event42, SOURCE_42_API),
+          1, // '42api'
         );
-        console.log('newEvent: ', newEvent);
         console.log(
           `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
         );
@@ -331,6 +340,7 @@ const syncUserEventsOnDbAndApi = async intraUsername => {
       if (!existingEvent) {
         const newEvent = await saveEventInDb(
           normalizeApiEventToSaveInDb(userEvent42),
+          1, // '42api'
         );
         console.log(
           `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
@@ -389,6 +399,7 @@ module.exports = {
   normalizeDbEventToResponse,
   getEventsInDb,
   getEventInDb,
+  saveEventInDb,
   saveUserEventInDb,
   getUserEventsInDb,
   getUserEventInDb,

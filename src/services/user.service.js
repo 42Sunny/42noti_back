@@ -19,14 +19,16 @@ module.exports = {
       };
       return data;
     }
-    const { intraId, displayName, email, intraProfilePageUrl } =
+    const { id, intraId, displayName, email, intraProfilePageUrl, role } =
       user;
     const data = {
-      id: intraId,
+      id,
+      intraId,
       username: intraUsername,
       displayName,
       email,
       intraProfilePageUrl,
+      role,
     };
     return data;
   },
