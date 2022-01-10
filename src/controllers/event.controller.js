@@ -122,8 +122,8 @@ module.exports = {
     try {
       const data = await getUserEvents(intraUsername);
       if (!data || data.length === 0) {
-        res.status(httpStatus.NOT_FOUND).json({
-          message: 'my events not found',
+        res.status(httpStatus.NO_CONTENT).json({
+          message: 'my events is empty',
         });
       }
       if (range == 'upcoming') {
