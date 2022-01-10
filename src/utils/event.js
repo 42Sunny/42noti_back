@@ -8,6 +8,7 @@ const {
   get42RecentUserEvents,
 } = require('./42api');
 const { getUserInDb } = require('./user');
+const CONSTANTS = require('./constants');
 
 const normalizeApiEventToSaveInDb = (originalEvent, source) => {
   return {
@@ -30,8 +31,18 @@ const normalizeApiEventToSaveInDb = (originalEvent, source) => {
 const normalizeDbEventToResponse = dbEvent => {
   const parse = JSON.parse(dbEvent.tags);
   const tags = parse.map(tag => tag.name);
-  const createdAt = dbEvent.intraCreatedAt ? dbEvent.intraCreatedAt : dbEvent.createdAt;
-  const updatedAt = dbEvent.intraUpdatedAt ? dbEvent.intraUpdatedAt : dbEvent.updatedAt;
+  const createdAt = dbEvent.intraCreatedAt
+    ? dbEvent.intraCreatedAt
+    : dbEvent.createdAt;
+  const updatedAt = dbEvent.intraUpdatedAt
+    ? dbEvent.intraUpdatedAt
+    : dbEvent.updatedAt;
+  let source;
+  if (dbEvent.source === CONSTANTS.EVENT_SOURCE_42API) source = '42api';
+  else if (dbEvent.source === CONSTANTS.EVENT_SOURCE_ADMIN) source = 'admin';
+  else if (dbEvent.source === CONSTANTS.EVENT_SOURCE_CADET) source = 'cadet';
+  else if (dbEvent.source === CONSTANTS.EVENT_SOURCE_MOCK) source = 'mock';
+
   return {
     id: dbEvent.id,
     intraId: dbEvent.intraId,
@@ -46,6 +57,7 @@ const normalizeDbEventToResponse = dbEvent => {
     tags,
     createdAt,
     updatedAt,
+    source
   };
 };
 
@@ -79,6 +91,21 @@ const getEventInDb = async eventId => {
       return null;
     }
     return event;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const deleteEventInDb = async eventId => {
+  try {
+    const existingEvent = await Event.findOne({
+      where: { id: eventId },
+    });
+    if (!existingEvent) {
+      return null;
+    }
+    const deletedEvent = await existingEvent.destroy();
+    return deletedEvent;
   } catch (err) {
     console.error(err);
   }
@@ -205,23 +232,27 @@ const deleteUserEventInDb = async eventId => {
   }
 };
 
-const updateEventInDb = async event => {
+const updateEventInDb = async (newEvent, eventId = null) => {
   try {
-    const where = event.id ? { id: event.id } : { intraId: event.intraId };
+    let where;
+    if (eventId) where = { id: eventId };
+    else if (newEvent.id) where = { id: newEvent.id };
+    else where = { intraId: newEvent.intraId };
+
     const existingEvent = await Event.findOne({
       where,
     });
     if (!existingEvent) {
       return null;
     }
-    const updatedEvent = await existingEvent.update(event);
+    const updatedEvent = await existingEvent.update(newEvent);
     const existingUserEvent = await UserEvent.findAll({
       where: { EventId: existingEvent.id },
     });
     if (existingUserEvent) {
       const now = new Date();
       const beforeOneHourThenBeginAt = new Date(
-        new Date(event.beginAt).getTime() - 1000 * 60 * 60,
+        new Date(newEvent.beginAt).getTime() - 1000 * 60 * 60,
       );
       const remindAt =
         beforeOneHourThenBeginAt > now ? beforeOneHourThenBeginAt : null;
@@ -251,7 +282,7 @@ const syncUpComingEventsOnDbAndApi = async () => {
         // save new event in db
         const newEvent = await saveEventInDb(
           normalizeApiEventToSaveInDb(event42),
-          1 // '42api'
+          1, // '42api'
         );
         console.log(
           `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
@@ -399,6 +430,8 @@ module.exports = {
   normalizeDbEventToResponse,
   getEventsInDb,
   getEventInDb,
+  updateEventInDb,
+  deleteEventInDb,
   saveEventInDb,
   saveUserEventInDb,
   getUserEventsInDb,

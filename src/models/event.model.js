@@ -45,7 +45,6 @@ module.exports = class Event extends Model {
         },
         tags: {
           type: DataTypes.TEXT,
-          allowNull: false,
         },
         source: {
           type: DataTypes.INTEGER,
@@ -58,10 +57,12 @@ module.exports = class Event extends Model {
            * 4. mock: mock event for test
            */
         },
+        // TODO: add createdBy
       },
       {
         sequelize,
         timestamps: true,
+        paranoid: true,
       },
     );
   }

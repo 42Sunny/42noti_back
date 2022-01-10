@@ -1,0 +1,6 @@
+module.exports = {
+  EVENT_SOURCE_42API: 1,
+  EVENT_SOURCE_ADMIN: 2,
+  EVENT_SOURCE_CADET: 3,
+  EVENT_SOURCE_MOCK: 4,
+}

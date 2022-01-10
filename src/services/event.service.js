@@ -1,13 +1,13 @@
 const UserEvent = require('../models/userEvent.model');
-const { get42UserEvents } = require('../utils/42api');
 const {
-  normalizeApiEventToSaveInDb,
   normalizeDbEventToResponse,
   getEventsInDb,
   getEventInDb,
+  updateEventInDb,
+  deleteEventInDb,
   getUserEventsInDb,
   getUserEventInDb,
-  syncUserEventsOnDbAndApi,
+  // syncUserEventsOnDbAndApi,
 } = require('../utils/event');
 const { getUserInDb } = require('../utils/user');
 
@@ -29,6 +29,21 @@ module.exports = {
     }
     const data = normalizeDbEventToResponse(originalData);
     return data;
+  },
+  updateEvent: async (eventId, newEvent) => {
+    const originalData = await getEventInDb(eventId);
+    if (!originalData) {
+      return null;
+    }
+    const data = await updateEventInDb(newEvent, eventId);
+    return normalizeDbEventToResponse(data);
+  },
+  deleteEvent: async eventId => {
+    const originalData = await deleteEventInDb(eventId);
+    if (!originalData) {
+      return null;
+    }
+    return true;
   },
   getUserEvents: async intraUsername => {
     // await syncUserEventsOnDbAndApi(intraUsername); // TODO: do this only force update.

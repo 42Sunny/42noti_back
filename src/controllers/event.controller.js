@@ -1,9 +1,12 @@
 const httpStatus = require('http-status');
 const jwt = require('jsonwebtoken');
 const env = require('../config');
+const CONSTANTS = require('../utils/constants');
 const {
   getCampusEvents,
   getEvent,
+  updateEvent,
+  deleteEvent,
   getUserEvent,
   getUserEvents,
   getUserEventReminderStatus,
@@ -19,13 +22,31 @@ const postEventController = async (req, res) => {
     env.cookie.secret,
   );
   const intraUsername = decodedToken.username;
-
-  const user = await getUser(intraUsername);
-  console.log(`user: ${user.intraUsername}(${user.role})`);
-
   const body = req.body;
-  if (body.source !== 'mock') {
-    return res.status(httpStatus.BAD_REQUEST).send('Bad Request');
+
+  const existingUser = await getUser(intraUsername);
+  if (
+    !(
+      existingUser.role === 'admin' ||
+      body.source === 'mock' || // TODO: add user role check
+      (body.source === 'cadet' && existingUser.role === 'cadet')
+    )
+  ) {
+    return res.status(httpStatus.FORBIDDEN).json({
+      message: ' Forbidden',
+    });
+  }
+
+  if (
+    !body.event.title ||
+    !body.event.description ||
+    !body.event.category ||
+    !body.event.beginAt ||
+    !body.event.endAt
+  ) {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      message: 'Required field is missing',
+    });
   }
 
   const tags = body.event.tags.map(tag => {
@@ -46,22 +67,126 @@ const postEventController = async (req, res) => {
     tags: JSON.stringify(tags),
   };
   let source;
-  if (body.source === '42api') source = 1;
-  else if (body.source === 'admin') source = 2;
-  else if (body.source === 'cadet') source = 3;
-  else if (body.source === 'mock') source = 4;
+  if (body.source === '42api') source = CONSTANTS.EVENT_SOURCE_42API;
+  else if (body.source === 'admin') source = CONSTANTS.EVENT_SOURCE_ADMIN;
+  else if (body.source === 'cadet') source = CONSTANTS.EVENT_SOURCE_CADET;
+  else if (body.source === 'mock') source = CONSTANTS.EVENT_SOURCE_MOCK;
   else source = 0;
 
-  const event = await saveEventInDb(eventData, source);
-  const parse = JSON.parse(event.dataValues.tags);
+  const savedEvent = await saveEventInDb(eventData, source);
+  const parse = JSON.parse(savedEvent.dataValues.tags);
   const resTags = parse.map(tag => tag.name);
-  return res.status(httpStatus.OK).send({
-    ...event.dataValues,
-    tags: resTags
+  return res.status(httpStatus.OK).json({
+    ...savedEvent.dataValues,
+    tags: resTags,
   });
 };
-const putEventController = async (req, res) => {};
-const deleteEventController = async (req, res) => {};
+
+const putEventController = async (req, res) => {
+  const decodedToken = jwt.verify(
+    req.cookies[env.cookie.auth],
+    env.cookie.secret,
+  );
+  const intraUsername = decodedToken.username;
+  const eventId = req.params.eventId;
+  const body = req.body;
+
+  const existingUser = await getUser(intraUsername);
+  const existingEvent = await getEvent(eventId);
+  if (!existingEvent) {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      message: 'Event not found',
+    });
+  }
+  console.log('event: ', existingEvent);
+
+  if (
+    !(
+      (
+        existingUser.role === 'admin' ||
+        existingEvent.source === 'mock' || // TODO: add user role check
+        (existingEvent.source === 'cadet' && existingUser.role === 'cadet')
+      )
+      // TODO: add (event.createdBy === intraUsername)
+    )
+  ) {
+    return res.status(httpStatus.FORBIDDEN).json({
+      message: 'Forbidden',
+    });
+  }
+
+  if (
+    !body.event.title ||
+    !body.event.description ||
+    !body.event.category ||
+    !body.event.beginAt ||
+    !body.event.endAt
+  ) {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      message: 'Required field is missing',
+    });
+  }
+
+  const tags = body.event.tags.map(tag => {
+    return { name: tag };
+  });
+  const newEventData = {
+    title: body.event.title,
+    description: body.event.description,
+    location: body.event.location,
+    maxSubscribers: body.event.maxSubscribers,
+    beginAt: body.event.beginAt,
+    endAt: body.event.endAt,
+    category: body.event.category,
+    tags: JSON.stringify(tags),
+  };
+
+  const updatedEvent = await updateEvent(eventId, newEventData);
+  return res.status(httpStatus.OK).json(updatedEvent);
+};
+
+const deleteEventController = async (req, res) => {
+  const decodedToken = jwt.verify(
+    req.cookies[env.cookie.auth],
+    env.cookie.secret,
+  );
+  const intraUsername = decodedToken.username;
+  const eventId = req.params.eventId;
+
+  const existingUser = await getUser(intraUsername);
+  const existingEvent = await getEvent(eventId);
+  if (!existingEvent) {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      message: 'Event not found',
+    });
+  }
+
+  if (
+    !(
+      (
+        existingUser.role === 'admin' ||
+        existingEvent.source === CONSTANTS.EVENT_SOURCE_MOCK || // TODO: add user role check
+        (existingEvent.source === CONSTANTS.EVENT_SOURCE_CADET &&
+          existingUser.role === 'cadet')
+      )
+      // TODO: add (event.createdBy === intraUsername)
+    )
+  ) {
+    return res.status(httpStatus.FORBIDDEN).json({
+      message: 'Forbidden',
+    });
+  }
+
+  const result = await deleteEvent(eventId);
+  if (!result) {
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'Failed to delete event',
+    });
+  }
+  return res.status(httpStatus.OK).json({
+    message: 'Event deleted',
+  });
+};
 
 module.exports = {
   apiSeoulCampusEventsController: async (req, res) => {
@@ -163,11 +288,10 @@ module.exports = {
         });
       }
 
-      // TODO: remove about intra subscribe state
       const status = await getUserEventReminderStatus(intraUsername, eventId);
       if (status === null) {
-        res.status(httpStatus.NOT_FOUND).json({
-          message: 'user event not found',
+        res.status(httpStatus.NO_CONTENT).json({
+          message: "This event doesn't have a reminder setting.",
         });
       }
       res.json({
