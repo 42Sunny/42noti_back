@@ -121,13 +121,10 @@ module.exports = {
 
     try {
       const data = await getUserEvents(intraUsername);
-      if (!data) {
+      if (!data || data.length === 0) {
         res.status(httpStatus.NOT_FOUND).json({
           message: 'my events not found',
         });
-      }
-      if (range == 'all') {
-        res.json(data);
       }
       if (range == 'upcoming') {
         const upcomingEvents = data.filter(
@@ -139,6 +136,7 @@ module.exports = {
         const pastEvents = data.filter(event => event.beginAt < new Date());
         res.json(pastEvents);
       }
+      res.json(data);
     } catch (err) {
       console.error(err);
     }
