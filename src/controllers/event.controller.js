@@ -339,12 +339,11 @@ module.exports = {
       }
 
       // TODO: array to save multiple remindAt
-      const beforeOneHour = new Date(event.beginAt - 1000 * 60 * 60);
-      // const beforeFiveMinutes = new Date(event.beginAt - 1000 * 60 * 5);
+      const beforeTenMinutes = new Date(event.beginAt - 1000 * 60 * 10);
       const userEventStatus = await setUserEventReminderOn(
         intraUsername,
         eventId,
-        beforeOneHour < now ? now : beforeOneHour,
+        beforeTenMinutes < now ? now : beforeTenMinutes,
       );
       res.json({
         reminder: userEventStatus.dataValues.isSetReminder,
