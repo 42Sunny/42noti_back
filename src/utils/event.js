@@ -198,11 +198,11 @@ const saveUserEventInDb = async (intraUsername, eventId, settings) => {
       return existingUserEvent;
     }
     const now = new Date();
-    const beforeTenMinutesThenBeginAt = new Date(
-      event.beginAt.getTime() - 1000 * 60 * 10,
+    const beforeMinutesThenBeginAt = new Date(
+      event.beginAt.getTime() - 1000 * 60 * CONSTANTS.REMINDER_BEFORE_MINUTES,
     );
     const remindAt =
-      beforeTenMinutesThenBeginAt > now ? beforeTenMinutesThenBeginAt : null;
+      beforeMinutesThenBeginAt > now ? beforeMinutesThenBeginAt : null;
     const newUserEvent = await UserEvent.create({
       UserId: user.id,
       EventId: event.id,
@@ -251,11 +251,11 @@ const updateEventInDb = async (newEvent, eventId = null) => {
     });
     if (existingUserEvent) {
       const now = new Date();
-      const beforeTenMinutesThenBeginAt = new Date(
-        new Date(newEvent.beginAt).getTime() - 1000 * 60 * 10,
+      const beforeMinutesThenBeginAt = new Date(
+        new Date(newEvent.beginAt).getTime() - 1000 * 60 * CONSTANTS.REMINDER_BEFORE_MINUTES,
       );
       const remindAt =
-        beforeTenMinutesThenBeginAt > now ? beforeTenMinutesThenBeginAt : null;
+        beforeMinutesThenBeginAt > now ? beforeMinutesThenBeginAt : null;
       existingUserEvent.forEach(async userEvent => {
         await userEvent.update({ remindAt });
       });

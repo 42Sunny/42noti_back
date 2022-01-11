@@ -3,16 +3,19 @@ const schedule = require('node-schedule');
 const { User, Event, UserEvent } = require('../models');
 const { sendEventReminderToUser } = require('../utils/slackApi');
 const cache = require('../utils/cache');
+const CONSTANTS = require('./constants');
 
 const remindEventSchedulesArray = {};
 
 const initEveryScheduleReminderSlackDm = async () => {
   const now = new Date();
-  const afterTenMinutes = new Date(now.getTime() + 1000 * 60 * 60 * 10);
+  const afterMinutes = new Date(
+    now.getTime() + 1000 * 60 * CONSTANTS.REMINDER_BEFORE_EVENT_MINUTES,
+  );
 
   const events = await Event.findAll({
     where: {
-      beginAt: { [Op.gte]: afterTenMinutes },
+      beginAt: { [Op.gte]: afterMinutes },
     },
     attributes: [
       'id',
@@ -58,12 +61,14 @@ const initEveryScheduleReminderSlackDm = async () => {
 
 const updateEveryScheduleReminderSlackDm = async eventId => {
   const now = new Date();
-  const afterTenMinutes = new Date(now.getTime() + 1000 * 60 * 10);
+  const afterMinutes = new Date(
+    now.getTime() + 1000 * 60 * CONSTANTS.REMINDER_BEFORE_EVENT_MINUTES,
+  );
 
   const events = await Event.findAll({
     where: {
       id: eventId,
-      beginAt: { [Op.gte]: afterTenMinutes },
+      beginAt: { [Op.gte]: afterMinutes },
     },
     attributes: [
       'id',
@@ -118,10 +123,14 @@ const addScheduleReminderSlackDm = async (eventId, intraUsername) => {
     const event = await Event.findOne({
       where: { id: eventId, beginAt: { [Op.gte]: now } },
       attributes: [
-      'id', 'intraId',
-      'title', 'description', 'location',
-      'beginAt', 'endAt',
-    ],
+        'id',
+        'intraId',
+        'title',
+        'description',
+        'location',
+        'beginAt',
+        'endAt',
+      ],
       raw: true,
     });
     const user = await User.findOne({
@@ -170,10 +179,14 @@ const removeScheduleReminderSlackDm = async (eventId, intraUsername) => {
     const event = await Event.findOne({
       where: { id: eventId },
       attributes: [
-      'id', 'intraId',
-      'title', 'description', 'location',
-      'beginAt', 'endAt',
-    ],
+        'id',
+        'intraId',
+        'title',
+        'description',
+        'location',
+        'beginAt',
+        'endAt',
+      ],
       raw: true,
     });
     const user = await User.findOne({
