@@ -136,6 +136,13 @@ const putEventController = async (req, res) => {
     });
   }
 
+  // utc+9 to utc-0
+  const beginAt = new Date(
+    new Date(body.event.beginAt).getTime() - 9 * 60 * 60 * 1000,
+  );
+  const endAt = new Date(
+    new Date(body.event.endAt).getTime() - 9 * 60 * 60 * 1000,
+  );
   const tags = body.event.tags.map(tag => {
     return { name: tag };
   });
@@ -144,8 +151,8 @@ const putEventController = async (req, res) => {
     description: body.event.description,
     location: body.event.location,
     maxSubscribers: body.event.maxSubscribers,
-    beginAt: body.event.beginAt,
-    endAt: body.event.endAt,
+    beginAt,
+    endAt,
     category: body.event.category,
     tags: JSON.stringify(tags),
   };
