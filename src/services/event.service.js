@@ -10,6 +10,11 @@ const {
   // syncUserEventsOnDbAndApi,
 } = require('../utils/event');
 const { getUserInDb } = require('../utils/user');
+const {
+  updateEveryScheduleReminderSlackDm,
+  addScheduleReminderSlackDm,
+  removeScheduleReminderSlackDm,
+} = require('../utils/reminder');
 
 module.exports = {
   getCampusEvents: async () => {
@@ -36,6 +41,7 @@ module.exports = {
       return null;
     }
     const data = await updateEventInDb(newEvent, eventId);
+    await updateEveryScheduleReminderSlackDm(eventId);
     return normalizeDbEventToResponse(data);
   },
   deleteEvent: async eventId => {
@@ -77,7 +83,6 @@ module.exports = {
       if (!userEvent) {
         return null;
       }
-      console.log('userEvent: ', userEvent);
       return userEvent.isSetReminder ? true : false;
     } catch (err) {
       console.error(err);
@@ -90,8 +95,8 @@ module.exports = {
 
       const userEvent = await UserEvent.findOne({
         where: {
-          userId: user.id,
-          eventId: event.id,
+          UserId: user.id,
+          EventId: event.id,
         },
       });
       if (!userEvent) {
@@ -100,6 +105,7 @@ module.exports = {
       userEvent.isSetReminder = true;
       userEvent.remindAt = remindAt;
       await userEvent.save();
+      await addScheduleReminderSlackDm(eventId, intraUsername);
       return userEvent;
     } catch (err) {
       console.error(err);
@@ -122,6 +128,7 @@ module.exports = {
       userEvent.isSetReminder = false;
       userEvent.remindAt = null;
       await userEvent.save();
+      await removeScheduleReminderSlackDm(eventId, intraUsername);
       return userEvent;
     } catch (err) {
       console.error(err);

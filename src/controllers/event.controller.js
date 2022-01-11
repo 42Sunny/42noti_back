@@ -49,6 +49,15 @@ const postEventController = async (req, res) => {
     });
   }
 
+  // utc+9 to utc-0
+  const beginAt = new Date(
+    new Date(body.event.beginAt).getTime() - 9 * 60 * 60 * 1000,
+  );
+  const endAt = new Date(
+    new Date(body.event.endAt).getTime() - 9 * 60 * 60 * 1000,
+  );
+  console.log('beginAt: ', beginAt);
+  console.log('endAt: ', endAt);
   const tags = body.event.tags.map(tag => {
     return { name: tag };
   });
@@ -61,8 +70,8 @@ const postEventController = async (req, res) => {
     location: body.event.location,
     maxSubscribers: body.event.maxSubscribers,
     currentSubscribers: 0,
-    beginAt: body.event.beginAt,
-    endAt: body.event.endAt,
+    beginAt,
+    endAt,
     category: body.event.category,
     tags: JSON.stringify(tags),
   };
@@ -165,9 +174,8 @@ const deleteEventController = async (req, res) => {
     !(
       (
         existingUser.role === 'admin' ||
-        existingEvent.source === CONSTANTS.EVENT_SOURCE_MOCK || // TODO: add user role check
-        (existingEvent.source === CONSTANTS.EVENT_SOURCE_CADET &&
-          existingUser.role === 'cadet')
+        existingEvent.source === 'mock' || // TODO: add user role check
+        (existingEvent.source === 'cadet' && existingUser.role === 'cadet')
       )
       // TODO: add (event.createdBy === intraUsername)
     )
@@ -345,6 +353,7 @@ module.exports = {
         eventId,
         beforeTenMinutes < now ? now : beforeTenMinutes,
       );
+      console.log('userEventStatus', userEventStatus);
       res.json({
         reminder: userEventStatus.dataValues.isSetReminder,
         remindAt: userEventStatus.dataValues.remindAt,

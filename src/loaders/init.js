@@ -1,6 +1,6 @@
 const { syncRecentThirtyEventsOnDbAndApi } = require('../utils/event');
 const { cacheSlackUserIds } = require('../utils/slackApi');
-const { initScheduleReminderSlackDm } = require('../utils/reminder');
+const { initEveryScheduleReminderSlackDm } = require('../utils/reminder');
 const {
   syncUpComingEventsEveryMinute,
   cacheSlackUserEveryMonday3am,
@@ -14,6 +14,6 @@ const scheduling = async () => {
 module.exports = async () => {
   await syncRecentThirtyEventsOnDbAndApi();
   await cacheSlackUserIds();
-  await initScheduleReminderSlackDm();
   await scheduling();
+  await initEveryScheduleReminderSlackDm();
 };

@@ -4,7 +4,7 @@ const cache = new NodeCache({ stdTTL: 60 * 60 * 24 * 7 }); // 1 week
 
 module.exports = {
   set: (key, value, ttl) => {
-    console.log('set: ', key, ' ', value);
+    console.log('cache set: ', key, ' ', value);
     cache.set(key, value, ttl);
   },
   get: key => {
