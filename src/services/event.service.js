@@ -15,6 +15,7 @@ const {
   addScheduleReminderSlackDm,
   removeScheduleReminderSlackDm,
 } = require('../utils/reminder');
+const { sendEveryoneUpdatedEventSlackDm } = require('../utils/reminder');
 
 module.exports = {
   getCampusEvents: async () => {
@@ -41,6 +42,8 @@ module.exports = {
       return null;
     }
     const data = await updateEventInDb(newEvent, eventId);
+    // TODO: send slack DM to all users
+    await sendEveryoneUpdatedEventSlackDm(eventId);
     await updateEveryScheduleReminderSlackDm(eventId);
     return normalizeDbEventToResponse(data);
   },

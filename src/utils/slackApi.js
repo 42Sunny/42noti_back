@@ -145,7 +145,7 @@ const sendEventReminder = async (channelId, event) => {
   try {
     const result = await client.chat.postMessage({
       channel: channelId,
-      text: `⏰ ${event.title}`,
+      text: `⏰ 곧 시작됩니다: ${event.title}`,
       blocks: [
         {
           type: 'header',
@@ -168,6 +168,76 @@ const sendEventReminder = async (channelId, event) => {
             type: 'mrkdwn',
             text: event.description,
           },
+        },
+        {
+          type: 'actions',
+          elements: [
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: '자세히 보러가기',
+                emoji: true,
+              },
+              value: 'click_me_123',
+              url: `${env.frontUrl}/detail/${event.id}`,
+              action_id: 'actionId-0',
+            },
+          ],
+        },
+      ],
+    });
+    if (result.ok === true) console.log('Message sent!');
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const sendUpdatedEventReminder = async (channelId, event) => {
+  const beginAt = new Date(event.beginAt);
+  const endAt = new Date(event.endAt);
+
+  const zeroPad = value => (value < 10 ? `0${value}` : value);
+  const beginAtString = `${beginAt.getFullYear()}/${
+    beginAt.getMonth() + 1
+  }/${beginAt.getDate()} ${zeroPad(beginAt.getHours())}:${zeroPad(
+    beginAt.getMinutes(),
+  )}`;
+  const endAtString = `${endAt.getFullYear()}/${
+    endAt.getMonth() + 1
+  }/${endAt.getDate()} ${zeroPad(endAt.getHours())}:${zeroPad(
+    endAt.getMinutes(),
+  )}`;
+
+  try {
+    const result = await client.chat.postMessage({
+      channel: channelId,
+      text: `👀 업데이트 확인하기: ${event.title}`,
+      blocks: [
+        {
+          type: 'header',
+          text: {
+            type: 'plain_text',
+            text: `${event.title}`,
+            emoji: true,
+          },
+        },
+
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `- 일시: ${beginAtString} - ${endAtString}\n - 장소: ${event.location}`,
+          },
+        },
+        {
+          type: 'context',
+          elements: [
+            {
+              type: 'mrkdwn',
+              text: '👀 이벤트가 업데이트 되었습니다. 아래 버튼을 눌러 변경 사항을 확인해주세요!',
+            },
+          ],
         },
         {
           type: 'actions',
@@ -229,6 +299,14 @@ module.exports = {
     try {
       const dmChannelId = await findDmChannelIdCache(username);
       await sendEventReminder(dmChannelId, event);
+    } catch (error) {
+      console.error(error);
+    }
+  },
+  sendUpdatedEventReminderToUser: async (username, event) => {
+    try {
+      const dmChannelId = await findDmChannelIdCache(username);
+      await sendUpdatedEventReminder(dmChannelId, event);
     } catch (error) {
       console.error(error);
     }

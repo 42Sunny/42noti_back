@@ -1,7 +1,10 @@
 const { Op } = require('sequelize');
 const schedule = require('node-schedule');
 const { User, Event, UserEvent } = require('../models');
-const { sendEventReminderToUser } = require('../utils/slackApi');
+const {
+  sendEventReminderToUser,
+  sendUpdatedEventReminderToUser,
+} = require('../utils/slackApi');
 const cache = require('../utils/cache');
 const CONSTANTS = require('./constants');
 
@@ -219,9 +222,44 @@ const removeScheduleReminderSlackDm = async (eventId, intraUsername) => {
   }
 };
 
+const sendEveryoneUpdatedEventSlackDm = async eventId => {
+  const event = await Event.findOne({
+    where: {
+      id: eventId,
+    },
+    attributes: [
+      'id',
+      'intraId',
+      'title',
+      'description',
+      'location',
+      'beginAt',
+      'endAt',
+    ],
+    raw: true,
+  });
+
+  const userEvents = await UserEvent.findAll({
+    where: { EventId: event.id },
+    raw: true,
+  });
+  await Promise.all(
+    userEvents.map(async userEvent => {
+      const user = await User.findOne({
+        where: { id: userEvent.UserId },
+        attributes: ['intraUsername'],
+        raw: true,
+      });
+      const username = user.intraUsername;
+      sendUpdatedEventReminderToUser(username, event);
+    }),
+  );
+};
+
 module.exports = {
   initEveryScheduleReminderSlackDm,
   updateEveryScheduleReminderSlackDm,
   addScheduleReminderSlackDm,
   removeScheduleReminderSlackDm,
+  sendEveryoneUpdatedEventSlackDm,
 };
