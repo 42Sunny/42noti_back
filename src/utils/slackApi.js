@@ -180,7 +180,7 @@ const sendEventReminder = async (channelId, event) => {
                 emoji: true,
               },
               value: 'click_me_123',
-              url: `${env.frontUrl}/event/${event.id}`,
+              url: `${env.frontUrl}/detail/${event.id}`,
               action_id: 'actionId-0',
             },
           ],

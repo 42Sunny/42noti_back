@@ -58,7 +58,7 @@ const initEveryScheduleReminderSlackDm = async () => {
 
 const updateEveryScheduleReminderSlackDm = async eventId => {
   const now = new Date();
-  const afterTenMinutes = new Date(now.getTime() + 1000 * 60 * 60 * 10);
+  const afterTenMinutes = new Date(now.getTime() + 1000 * 60 * 10);
 
   const events = await Event.findAll({
     where: {
@@ -97,12 +97,12 @@ const updateEveryScheduleReminderSlackDm = async eventId => {
               remindEventSchedulesArray[event.id] || {};
             if (remindEventSchedulesArray[event.id][username]) {
               remindEventSchedulesArray[event.id][username].cancel();
+              console.log('cancel job');
             }
             remindEventSchedulesArray[event.id][username] =
               schedule.scheduleJob(remindAt, () => {
                 sendEventReminderToUser(username, event);
               });
-
             cache.set('remindEventSchedulesArray', remindEventSchedulesArray);
           }
         }),
