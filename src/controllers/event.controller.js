@@ -205,8 +205,18 @@ const deleteEventController = async (req, res) => {
 
 module.exports = {
   apiSeoulCampusEventsController: async (req, res) => {
+    const { range, source, update } = req.query;
+    const options = {};
+    if (range) {
+      options.range = range;
+    }
+    if (source) {
+      options.includeSources = source.split(',');
+    }
+    if (update)
+      options.forceUpdate = update === 'force' ? true : false;
     try {
-      const data = await getCampusEvents();
+      const data = await getCampusEvents(options);
       if (!data) {
         res.status(httpStatus.NOT_FOUND).json({
           message: 'campus events not found',

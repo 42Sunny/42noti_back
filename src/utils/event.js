@@ -62,19 +62,17 @@ const normalizeDbEventToResponse = dbEvent => {
 };
 
 const getEventsInDb = async query => {
-  if (!query) {
-    const now = new Date();
-    const events = await Event.findAll({
-      where: {
-        endAt: { [Op.gte]: now },
-      },
-      order: [['beginAt', 'DESC']],
-      raw: true,
-    });
-    return events;
-  }
+  const now = new Date();
+  const beginAt = (query && query.beginAt) || { [Op.gte]: now };
+  const source = (query && query.source) || {
+    [Op.in]: [
+      CONSTANTS.EVENT_SOURCE_42API,
+      CONSTANTS.EVENT_SOURCE_ADMIN,
+      CONSTANTS.EVENT_SOURCE_CADET,
+    ],
+  };
   const events = await Event.findAll({
-    where: query,
+    where: { source, beginAt },
     order: [['beginAt', 'DESC']],
     raw: true,
   });
@@ -252,7 +250,8 @@ const updateEventInDb = async (newEvent, eventId = null) => {
     if (existingUserEvent) {
       const now = new Date();
       const beforeMinutesThenBeginAt = new Date(
-        new Date(newEvent.beginAt).getTime() - 1000 * 60 * CONSTANTS.REMINDER_BEFORE_MINUTES,
+        new Date(newEvent.beginAt).getTime() -
+          1000 * 60 * CONSTANTS.REMINDER_BEFORE_MINUTES,
       );
       const remindAt =
         beforeMinutesThenBeginAt > now ? beforeMinutesThenBeginAt : null;

@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const UserEvent = require('../models/userEvent.model');
 const {
   normalizeDbEventToResponse,
@@ -7,6 +8,7 @@ const {
   deleteEventInDb,
   getUserEventsInDb,
   getUserEventInDb,
+  syncUpComingEventsOnDbAndApi,
   // syncUserEventsOnDbAndApi,
 } = require('../utils/event');
 const { getUserInDb } = require('../utils/user');
@@ -16,10 +18,43 @@ const {
   removeScheduleReminderSlackDm,
 } = require('../utils/reminder');
 const { sendEveryoneUpdatedEventSlackDm } = require('../utils/reminder');
+const CONSTANTS = require('../utils/constants');
+
+const test = ['42api', 'admin', 'cadet', 'mock'];
+// array to numbers
+// 42api: 1, admin: 2, cadet: 3, mock: 4
+const test2 = test.map(x => {
+  if (x === '42api') return CONSTANTS.EVENT_SOURCE_42API;
+  if (x === 'admin') return CONSTANTS.EVENT_SOURCE_ADMIN;
+  if (x === 'cadet') return CONSTANTS.EVENT_SOURCE_CADET;
+  if (x === 'mock') return CONSTANTS.EVENT_SOURCE_MOCK;
+});
 
 module.exports = {
-  getCampusEvents: async () => {
-    const originalData = await getEventsInDb();
+  getCampusEvents: async options => {
+    const { range, includeSources, forceUpdate } = options;
+    let query = null;
+    const now = new Date();
+    if (range) {
+      query = query || {};
+      if (range === 'upcoming') query.endAt = { [Op.gte]: now };
+      if (range === 'past') query.beginAt = { [Op.lte]: now };
+      if (range === 'all') query = {};
+    }
+    if (includeSources) {
+      const sourceArray = includeSources.map(source => {
+        if (source === '42api') return CONSTANTS.EVENT_SOURCE_42API;
+        if (source === 'admin') return CONSTANTS.EVENT_SOURCE_ADMIN;
+        if (source === 'cadet') return CONSTANTS.EVENT_SOURCE_CADET;
+        if (source === 'mock') return CONSTANTS.EVENT_SOURCE_MOCK;
+      });
+      query = query || {};
+      query.source = { [Op.in]: sourceArray };
+    }
+    if (forceUpdate) {
+      await syncUpComingEventsOnDbAndApi();
+    }
+    const originalData = await getEventsInDb(query);
     if (!originalData) {
       return null;
     }
