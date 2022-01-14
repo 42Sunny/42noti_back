@@ -61,16 +61,9 @@ const normalizeDbEventToResponse = dbEvent => {
   };
 };
 
-const getEventsInDb = async query => {
-  const now = new Date();
-  const beginAt = (query && query.beginAt) || { [Op.gte]: now };
-  const source = (query && query.source) || {
-    [Op.in]: [
-      CONSTANTS.EVENT_SOURCE_42API,
-      CONSTANTS.EVENT_SOURCE_ADMIN,
-      CONSTANTS.EVENT_SOURCE_CADET,
-    ],
-  };
+const getEventsInDb = async where => {
+  const beginAt = where.beginAt;
+  const source = where.source;
   const events = await Event.findAll({
     where: { source, beginAt },
     order: [['beginAt', 'DESC']],

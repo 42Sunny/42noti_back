@@ -206,15 +206,11 @@ const deleteEventController = async (req, res) => {
 module.exports = {
   apiSeoulCampusEventsController: async (req, res) => {
     const { range, source, update } = req.query;
-    const options = {};
-    if (range) {
-      options.range = range;
-    }
-    if (source) {
-      options.includeSources = source.split(',');
-    }
-    if (update)
-      options.forceUpdate = update === 'force' ? true : false;
+    const options = {
+      range: range || 'upcoming',
+      includeSources: (source && source.split(',')) || '42api,admin,cadet'.split(','),
+      forceUpdate: update === 'force' || false,
+    };
     try {
       const data = await getCampusEvents(options);
       if (!data) {
