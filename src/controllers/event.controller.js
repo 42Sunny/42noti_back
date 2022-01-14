@@ -177,16 +177,13 @@ const deleteEventController = async (req, res) => {
     });
   }
 
-  if (
-    !(
-      (
-        existingUser.role === 'admin' ||
-        existingEvent.source === 'mock' || // TODO: add user role check
-        (existingEvent.source === 'cadet' && existingUser.role === 'cadet')
-      )
-      // TODO: add (event.createdBy === intraUsername)
-    )
-  ) {
+  // prettier-ignore
+  if (!(
+    existingUser.role === 'admin' ||
+    existingEvent.source === 'mock' || // TODO: add user role check
+    (existingEvent.source === 'cadet' && existingUser.role === 'cadet')
+    // TODO: add (event.createdBy === intraUsername)
+  )) {
     return res.status(httpStatus.FORBIDDEN).json({
       message: 'Forbidden',
     });
@@ -208,17 +205,18 @@ module.exports = {
     const { range, source, update } = req.query;
     const options = {
       range: range || 'upcoming',
-      includeSources: (source && source.split(',')) || '42api,admin,cadet'.split(','),
+      includeSources:
+        (source && source.split(',')) || '42api,admin,cadet'.split(','),
       forceUpdate: update === 'force' || false,
     };
     try {
       const data = await getCampusEvents(options);
       if (!data) {
-        res.status(httpStatus.NOT_FOUND).json({
+        return res.status(httpStatus.NOT_FOUND).json({
           message: 'campus events not found',
         });
       }
-      res.json(data);
+      return res.json(data);
     } catch (err) {
       console.error(err);
     }
@@ -228,11 +226,11 @@ module.exports = {
     try {
       const data = await getEvent(eventId);
       if (!data) {
-        res.status(httpStatus.NOT_FOUND).json({
+        return res.status(httpStatus.NOT_FOUND).json({
           message: 'event not found',
         });
       }
-      res.json(data);
+      return res.json(data);
     } catch (err) {
       console.error(err);
     }
@@ -242,17 +240,17 @@ module.exports = {
     try {
       const user = await getUser(intraUsername);
       if (!user) {
-        res.status(httpStatus.NOT_FOUND).json({
+        return res.status(httpStatus.NOT_FOUND).json({
           message: 'user not found',
         });
       }
       const data = await getUserEvents(intraUsername);
       if (!data) {
-        res.status(httpStatus.NOT_FOUND).json({
+        return res.status(httpStatus.NOT_FOUND).json({
           message: 'user events not found',
         });
       }
-      res.json(data);
+      return res.json(data);
     } catch (err) {
       console.error(err);
     }
@@ -268,7 +266,7 @@ module.exports = {
     try {
       const data = await getUserEvents(intraUsername);
       if (!data || data.length === 0) {
-        res.status(httpStatus.NO_CONTENT).json({
+        return res.status(httpStatus.NO_CONTENT).json({
           message: 'my events is empty',
         });
       }
@@ -276,13 +274,13 @@ module.exports = {
         const upcomingEvents = data.filter(
           event => event.beginAt >= new Date(),
         );
-        res.json(upcomingEvents);
+        return res.json(upcomingEvents);
       }
       if (range == 'past') {
         const pastEvents = data.filter(event => event.beginAt < new Date());
-        res.json(pastEvents);
+        return res.json(pastEvents);
       }
-      res.json(data);
+      return res.json(data);
     } catch (err) {
       console.error(err);
     }
@@ -298,24 +296,19 @@ module.exports = {
     try {
       const event = await getEvent(eventId);
       if (!event) {
-        res.status(httpStatus.NOT_FOUND).json({
+        return res.status(httpStatus.NOT_FOUND).json({
           message: 'event not found',
-        });
-      }
-      if (event.beginAt < new Date()) {
-        res.json({
-          message: 'event is already started.',
-          reminder: null,
         });
       }
 
       const status = await getUserEventReminderStatus(intraUsername, eventId);
       if (status === null) {
-        res.status(httpStatus.NO_CONTENT).json({
+        return res.json({
           message: "This event doesn't have a reminder setting.",
+          reminder: null,
         });
       }
-      res.json({
+      return res.json({
         reminder: status,
       });
     } catch (err) {
@@ -333,19 +326,19 @@ module.exports = {
     try {
       const user = await getUser(intraUsername);
       if (!user) {
-        res.status(httpStatus.NOT_FOUND).json({
+        return res.status(httpStatus.NOT_FOUND).json({
           message: 'user not found',
         });
       }
       const event = await getEvent(eventId);
       if (!event) {
-        res.status(httpStatus.NOT_FOUND).json({
+        return res.status(httpStatus.NOT_FOUND).json({
           message: 'event not found',
         });
       }
       const now = new Date();
       if (event.beginAt < now) {
-        res.json({
+        return res.json({
           message: 'event is already started.',
           reminder: null,
         });
@@ -369,7 +362,7 @@ module.exports = {
         beforeMinutes < now ? now : beforeMinutes,
       );
       console.log('userEventStatus', userEventStatus);
-      res.json({
+      return res.json({
         reminder: userEventStatus.dataValues.isSetReminder,
         remindAt: userEventStatus.dataValues.remindAt,
         event: event,
@@ -389,19 +382,19 @@ module.exports = {
     try {
       const user = await getUser(intraUsername);
       if (!user) {
-        res.status(httpStatus.NOT_FOUND).json({
+        return res.status(httpStatus.NOT_FOUND).json({
           message: 'user not found',
         });
       }
       const event = await getEvent(eventId);
       if (!event) {
-        res.status(httpStatus.NOT_FOUND).json({
+        return res.status(httpStatus.NOT_FOUND).json({
           message: 'event not found',
         });
       }
       const now = new Date();
       if (event.beginAt < now) {
-        res.json({
+        return res.json({
           message: 'event is already started.',
           reminder: null,
         });
@@ -410,7 +403,7 @@ module.exports = {
       const userEvent = await getUserEvent(intraUsername, eventId);
       console.log('userEvent: ', userEvent);
       if (!userEvent) {
-        res.status(httpStatus.NOT_FOUND).json({
+        return res.status(httpStatus.NOT_FOUND).json({
           message: 'user event not found',
         });
       }
@@ -419,7 +412,7 @@ module.exports = {
         intraUsername,
         eventId,
       );
-      res.json({
+      return res.json({
         reminder: userEventStatus.isSetReminder,
         event: event,
       });
