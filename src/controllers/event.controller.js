@@ -361,7 +361,6 @@ module.exports = {
         eventId,
         beforeMinutes < now ? now : beforeMinutes,
       );
-      console.log('userEventStatus', userEventStatus);
       return res.json({
         reminder: userEventStatus.dataValues.isSetReminder,
         remindAt: userEventStatus.dataValues.remindAt,
@@ -401,7 +400,6 @@ module.exports = {
       }
 
       const userEvent = await getUserEvent(intraUsername, eventId);
-      console.log('userEvent: ', userEvent);
       if (!userEvent) {
         return res.status(httpStatus.NOT_FOUND).json({
           message: 'user event not found',
