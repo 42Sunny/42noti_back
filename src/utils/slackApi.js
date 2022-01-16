@@ -17,39 +17,6 @@ const client = new WebClient(SLACK_BOT_TOKEN, {
   logLevel: LogLevel.DEBUG,
 });
 
-const findChannelId = async name => {
-  console.log('findChannelId: ', name);
-  try {
-    const result = await app.client.conversations.list({
-      token: SLACK_BOT_TOKEN,
-    });
-
-    for (const channel of result.channels) {
-      if (channel.name === name) {
-        conversationId = channel.id;
-        return conversationId;
-      }
-    }
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-const findChannelIdCache = async name => {
-  console.log('findChannelIdCache: ', name);
-  try {
-    const cached = cache.get(`slack-channelId-${name}`);
-    if (cached) {
-      return cached;
-    }
-    const result = await findChannelId(name);
-    cache.set(`slack-channelId-${name}`, result);
-    return result;
-  } catch (error) {
-    console.error(error);
-  }
-};
-
 const findUserIdByUsername = async username => {
   console.log('findUserIdByUsername: ', username);
   try {
@@ -71,17 +38,9 @@ const findUserIdByUsername = async username => {
 const findDmChannelId = async username => {
   try {
     console.log(username);
-    const userId = await findUserIdByUsername(username);
-    const result = await app.client.conversations.open({
-      token: SLACK_BOT_TOKEN,
-      users: userId,
-    });
-    if (result.ok === false) {
-      console.log('Error(findDmChannelId): ', username, result.error);
-      return null;
-    }
+    const result = await findUserIdByUsername(username);
 
-    return result.channel.id;
+    return result;
   } catch (error) {
     console.error(error);
   }
@@ -145,8 +104,17 @@ const sendEventReminder = async (channelId, event) => {
   try {
     const result = await client.chat.postMessage({
       channel: channelId,
-      text: `⏰ 곧 시작됩니다: ${event.title}`,
+      text: `⏰ 곧 시작합니다: ${event.title}`,
       blocks: [
+        {
+          type: 'context',
+          elements: [
+            {
+              type: 'mrkdwn',
+              text: '⏰ 이벤트가 곧 시작합니다.',
+            },
+          ],
+        },
         {
           type: 'header',
           text: {
@@ -169,6 +137,7 @@ const sendEventReminder = async (channelId, event) => {
             text: event.description,
           },
         },
+
         {
           type: 'actions',
           elements: [
@@ -215,6 +184,15 @@ const sendUpdatedEventReminder = async (channelId, event) => {
       text: `👀 업데이트 확인하기: ${event.title}`,
       blocks: [
         {
+          type: 'context',
+          elements: [
+            {
+              type: 'mrkdwn',
+              text: '👀 이벤트가 업데이트 되었습니다.',
+            },
+          ],
+        },
+        {
           type: 'header',
           text: {
             type: 'plain_text',
@@ -222,22 +200,12 @@ const sendUpdatedEventReminder = async (channelId, event) => {
             emoji: true,
           },
         },
-
         {
           type: 'section',
           text: {
             type: 'mrkdwn',
             text: `- 일시: ${beginAtString} - ${endAtString}\n - 장소: ${event.location}`,
           },
-        },
-        {
-          type: 'context',
-          elements: [
-            {
-              type: 'mrkdwn',
-              text: '👀 이벤트가 업데이트 되었습니다. 아래 버튼을 눌러 변경 사항을 확인해주세요!',
-            },
-          ],
         },
         {
           type: 'actions',
