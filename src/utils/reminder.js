@@ -153,6 +153,7 @@ const addScheduleReminderSlackDm = async (eventId, intraUsername) => {
     if (!event) throw new Error('event not exist');
     if (!user) throw new Error('user not exist');
     if (!userEvent) throw new Error('userEvent not exist');
+    console.log('userEvent', userEvent);
 
     const username = user.intraUsername;
     const remindAt = new Date(userEvent.remindAt);
@@ -178,6 +179,7 @@ const addScheduleReminderSlackDm = async (eventId, intraUsername) => {
 };
 
 const removeScheduleReminderSlackDm = async (eventId, intraUsername) => {
+  console.log('removeScheduleReminderSlackDm');
   try {
     const event = await Event.findOne({
       where: { id: eventId },
@@ -201,7 +203,7 @@ const removeScheduleReminderSlackDm = async (eventId, intraUsername) => {
       where: {
         UserId: user.id,
         EventId: event.id,
-        isSetReminder: true,
+        isSetReminder: false,
       },
       attributes: ['remindAt'],
       raw: true,
@@ -211,10 +213,12 @@ const removeScheduleReminderSlackDm = async (eventId, intraUsername) => {
     if (!userEvent) throw new Error('userEvent not exist');
 
     const username = user.intraUsername;
-
     if (remindEventSchedulesArray[event.id][username]) {
       remindEventSchedulesArray[event.id][username].cancel();
       delete remindEventSchedulesArray[event.id][username];
+      if (Object.keys(remindEventSchedulesArray[event.id]).length === 0) {
+        delete remindEventSchedulesArray[event.id];
+      }
     }
     cache.set('remindEventSchedulesArray', remindEventSchedulesArray);
   } catch (err) {
@@ -251,7 +255,7 @@ const sendEveryoneUpdatedEventSlackDm = async eventId => {
         raw: true,
       });
       const username = user.intraUsername;
-      sendUpdatedEventReminderToUser(username, event);
+      await sendUpdatedEventReminderToUser(username, event);
     }),
   );
 };
