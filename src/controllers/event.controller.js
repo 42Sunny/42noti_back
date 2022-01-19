@@ -202,12 +202,14 @@ const deleteEventController = async (req, res) => {
 
 module.exports = {
   apiSeoulCampusEventsController: async (req, res) => {
-    const { range, source, update } = req.query;
+    const { range, source, update, page, limit } = req.query;
     const options = {
       range: range || 'upcoming',
       includeSources:
         (source && source.split(',')) || '42api,admin,cadet'.split(','),
       forceUpdate: update === 'force' || false,
+      page: page || 1,
+      limit: limit || 10,
     };
     try {
       const data = await getCampusEvents(options);

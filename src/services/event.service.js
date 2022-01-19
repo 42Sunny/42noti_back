@@ -22,13 +22,14 @@ const CONSTANTS = require('../utils/constants');
 
 module.exports = {
   getCampusEvents: async options => {
-    const { range, includeSources, forceUpdate } = options;
+    const { range, includeSources, forceUpdate, page, limit } = options;
     const now = new Date();
     const where = {};
 
     if (range === 'upcoming') where.beginAt = { [Op.gt]: now };
     else if (range === 'past') where.beginAt = { [Op.lte]: now };
-    else if (range === 'all') where = {};
+    else if (range === 'all')
+      where.beginAt = { [Op.or]: [{ [Op.lte]: now }, { [Op.gt]: now }] };
     else where.beginAt = { [Op.gte]: now };
 
     where.source = {
@@ -39,6 +40,10 @@ module.exports = {
         if (source === 'mock') return CONSTANTS.EVENT_SOURCE_MOCK;
       }),
     };
+
+    where.offset = (page - 1) * limit;
+    // limit type to number
+    where.limit = range === 'upcoming' ? -1 : Number(limit);
 
     if (forceUpdate) await syncUpComingEventsOnDbAndApi();
     const originalData = await getEventsInDb(where);

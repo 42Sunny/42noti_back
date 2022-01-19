@@ -62,11 +62,13 @@ const normalizeDbEventToResponse = dbEvent => {
 };
 
 const getEventsInDb = async where => {
-  const beginAt = where.beginAt;
-  const source = where.source;
+  const { beginAt, source, offset, limit } = where;
+  console.log('offset, limit', offset, limit);
   const events = await Event.findAll({
     where: { source, beginAt },
     order: [['beginAt', 'DESC']],
+    offset,
+    limit: limit === -1 ? null : limit,
     raw: true,
   });
   return events;
