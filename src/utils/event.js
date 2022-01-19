@@ -111,7 +111,6 @@ const getUserEventsInDb = async intraUsername => {
           model: Event,
           as: 'Event',
           through: {
-            // NOTE: UserEvent
             where: {
               isSetReminder: true,
             },
@@ -119,6 +118,7 @@ const getUserEventsInDb = async intraUsername => {
           },
         },
       ],
+      order: [[Event, 'beginAt', 'DESC']],
     });
     const userEvents = user.Event;
     return userEvents;
