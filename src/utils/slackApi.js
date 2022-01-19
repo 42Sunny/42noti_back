@@ -86,8 +86,8 @@ const sendMessage = async (channelId, message) => {
 };
 
 const sendEventReminder = async (channelId, event) => {
-  const beginAt = new Date(event.beginAt);
-  const endAt = new Date(event.endAt);
+  const beginAt = new Date(new Date(event.beginAt).getTime() + 9 * 60 * 60 * 1000);
+  const endAt = new Date(new Date(event.endAt).getTime() + 9 * 60 * 60 * 1000);
 
   const zeroPad = (value) => value < 10 ? `0${value}` : value;
   const beginAtString = `${beginAt.getFullYear()}/${
@@ -163,8 +163,8 @@ const sendEventReminder = async (channelId, event) => {
 };
 
 const sendUpdatedEventReminder = async (channelId, event) => {
-  const beginAt = new Date(event.beginAt);
-  const endAt = new Date(event.endAt);
+  const beginAt = new Date(new Date(event.beginAt).getTime() + 9 * 60 * 60 * 1000);
+  const endAt = new Date(new Date(event.endAt).getTime() + 9 * 60 * 60 * 1000);
 
   const zeroPad = value => (value < 10 ? `0${value}` : value);
   const beginAtString = `${beginAt.getFullYear()}/${
