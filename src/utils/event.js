@@ -5,6 +5,7 @@ const UserEvent = require('../models/userEvent.model');
 const {
   get42CampusUpComingEvents,
   get42CampusRecentThirtyEvents,
+  get42CampusEveryEvents,
   get42RecentUserEvents,
 } = require('./42api');
 const { getUserInDb } = require('./user');
@@ -152,7 +153,7 @@ const getUserEventInDb = async (intraUsername, eventId) => {
 
 const saveEventInDb = async (event, source) => {
   try {
-    if (source === 1) {
+    if (source === CONSTANTS.EVENT_SOURCE_42API) {
       const where = event.id ? { id: event.id } : { intraId: event.intraId };
       const existingEvent = await Event.findOne({
         where,
@@ -275,8 +276,8 @@ const syncUpComingEventsOnDbAndApi = async () => {
       if (!existingEvent) {
         // save new event in db
         const newEvent = await saveEventInDb(
-          normalizeApiEventToSaveInDb(event42),
-          1, // '42api'
+          normalizeApiEventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE_42API),
+          CONSTANTS.EVENT_SOURCE_42API,
         );
         console.log(
           `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
@@ -285,7 +286,7 @@ const syncUpComingEventsOnDbAndApi = async () => {
         if (event42.updated_at !== existingEvent.intraUpdatedAt) {
           // update event in db
           const updatedEvent = await updateEventInDb(
-            normalizeApiEventToSaveInDb(event42),
+            normalizeApiEventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE_42API),
           );
           console.log(
             `🆙 event updated: ${updatedEvent.intraId} ${updatedEvent.title}`,
@@ -297,8 +298,6 @@ const syncUpComingEventsOnDbAndApi = async () => {
     console.error(err);
   }
 };
-
-const SOURCE_42_API = 1;
 
 const syncRecentThirtyEventsOnDbAndApi = async () => {
   try {
@@ -314,8 +313,8 @@ const syncRecentThirtyEventsOnDbAndApi = async () => {
       if (!eventInDb) {
         // save new event in db
         const newEvent = await saveEventInDb(
-          normalizeApiEventToSaveInDb(event42, SOURCE_42_API),
-          1, // '42api'
+          normalizeApiEventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE_42API),
+          CONSTANTS.EVENT_SOURCE_42API,
         );
         console.log(
           `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
@@ -324,7 +323,7 @@ const syncRecentThirtyEventsOnDbAndApi = async () => {
         if (event42.updated_at !== eventInDb.intraUpdatedAt) {
           // update event in db
           const updatedEvent = await updateEventInDb(
-            normalizeApiEventToSaveInDb(event42),
+            normalizeApiEventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE_42API),
           );
           console.log(
             `🆙 event updated: ${updatedEvent.intraId} ${updatedEvent.title}`,
@@ -334,6 +333,41 @@ const syncRecentThirtyEventsOnDbAndApi = async () => {
     });
   } catch (err) {
     console.error(err);
+  }
+};
+
+const syncEveryEventsOnDbAndApi = async () => {
+  try {
+    const eventsFrom42Api = await get42CampusEveryEvents(SEOUL_CAMPUS_ID);
+    if (!eventsFrom42Api) throw new Error('campus events not found');
+    eventsFrom42Api.forEach(async event42 => {
+      const eventInDb = await Event.findOne({
+        where: { intraId: event42.id },
+        raw: true,
+      });
+      if (!eventInDb) {
+        // save new event in db
+        const newEvent = await saveEventInDb(
+          normalizeApiEventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE_42API),
+          CONSTANTS.EVENT_SOURCE_42API,
+        );
+        console.log(
+          `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
+        );
+      } else {
+        if (event42.updated_at !== eventInDb.intraUpdatedAt) {
+          // update event in db
+          const updatedEvent = await updateEventInDb(
+            normalizeApiEventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE_42API),
+          );
+          console.log(
+            `🆙 event updated: ${updatedEvent.intraId} ${updatedEvent.title}`,
+          );
+        }
+      }
+    });
+  } catch (err) {
+    console.error
   }
 };
 
@@ -364,8 +398,11 @@ const syncUserEventsOnDbAndApi = async intraUsername => {
       });
       if (!existingEvent) {
         const newEvent = await saveEventInDb(
-          normalizeApiEventToSaveInDb(userEvent42),
-          1, // '42api'
+          normalizeApiEventToSaveInDb(
+            userEvent42,
+            CONSTANTS.EVENT_SOURCE_42API,
+          ),
+          CONSTANTS.EVENT_SOURCE_42API,
         );
         console.log(
           `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
@@ -432,5 +469,6 @@ module.exports = {
   getUserEventInDb,
   syncUpComingEventsOnDbAndApi,
   syncRecentThirtyEventsOnDbAndApi,
+  syncEveryEventsOnDbAndApi,
   syncUserEventsOnDbAndApi,
 };

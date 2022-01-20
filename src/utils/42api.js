@@ -73,13 +73,30 @@ module.exports = {
     }
   },
   get42CampusRecentThirtyEvents: async campusId => {
-    const path = `/v2/campus/${campusId}/events` + `?page[size]=30&sort=-begin_at,-id`; // recent 30 events
-    // TODO: path for all events in campus
+    const path =
+      `/v2/campus/${campusId}/events` + `?page[size]=30&sort=-begin_at,-id`; // recent 30 events
     try {
       const data = await get42ApiWithToken(path);
       if (data) {
         return data;
       }
+    } catch (err) {
+      console.error(err);
+    }
+  },
+  get42CampusEveryEvents: async campusId => {
+    const size = 100;
+    const path = `/v2/campus/${campusId}/events` + `?page[size]=${size} `;
+    try {
+      const result = [];
+      let page = 1;
+      let data = await get42ApiWithToken(path + `&page[number]=${page}`);
+      while (data && data.length > 0) {
+        result.push(...data);
+        page++;
+        data = await get42ApiWithToken(path + `&page[number]=${page}`);
+      }
+      return result;
     } catch (err) {
       console.error(err);
     }
