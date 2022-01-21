@@ -86,7 +86,7 @@ module.exports = {
   },
   get42CampusEveryEvents: async campusId => {
     const size = 100;
-    const path = `/v2/campus/${campusId}/events` + `?page[size]=${size} `;
+    const path = `/v2/campus/${campusId}/events` + `?page[size]=${size}`;
     try {
       const result = [];
       let page = 1;
@@ -108,6 +108,54 @@ module.exports = {
       if (data) {
         return data;
       }
+    } catch (err) {
+      console.error(err);
+    }
+  },
+  get42CampusCadetExams: async campusId => {
+    const CARDET_CURSUS_ID = '21';
+    const path = `/v2/campus/${campusId}/cursus/${CARDET_CURSUS_ID}/exams`;
+    try {
+      const data = await get42ApiWithToken(path);
+      if (data) {
+        return data;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  },
+  get42CampusCadetUpComingExams: async campusId => {
+    const CARDET_CURSUS_ID = '21';
+    const now = new Date();
+    const future = new Date('9999-12-31T00:00:00.000Z');
+    const path =
+      `/v2/campus/${campusId}/cursus/${CARDET_CURSUS_ID}/exams` +
+      `?range[end_at]=${now.toISOString()},${future.toISOString()}`;
+    try {
+      const data = await get42ApiWithToken(path);
+      if (data) {
+        return data;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  },
+  get42CampusCadetEveryExams: async campusId => {
+    const CARDET_CURSUS_ID = '21';
+    const size = 100;
+    const path =
+      `/v2/campus/${campusId}/cursus/${CARDET_CURSUS_ID}/exams` +
+      `?page[size]=${size}`;
+    try {
+      const result = [];
+      let page = 1;
+      let data = await get42ApiWithToken(path + `&page[number]=${page}`);
+      while (data && data.length > 0) {
+        result.push(...data);
+        page++;
+        data = await get42ApiWithToken(path + `&page[number]=${page}`);
+      }
+      return result;
     } catch (err) {
       console.error(err);
     }

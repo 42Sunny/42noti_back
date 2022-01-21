@@ -7,6 +7,8 @@ const {
   get42CampusRecentThirtyEvents,
   get42CampusEveryEvents,
   get42RecentUserEvents,
+  get42CampusCadetUpComingExams,
+  get42CampusCadetEveryExams,
 } = require('./42api');
 const { getUserInDb } = require('./user');
 const CONSTANTS = require('./constants');
@@ -26,6 +28,43 @@ const normalizeApiEventToSaveInDb = (originalEvent, source) => {
     intraCreatedAt: originalEvent.created_at,
     intraUpdatedAt: originalEvent.updated_at,
     source,
+  };
+};
+
+const normalizeApiExamToSaveInDb = originalExam => {
+  const makeDescription = projects => {
+    let description = 'This session concerns only the following exams : ';
+    projects.forEach((project, index, array) => {
+      if (index === 0) {
+        description += project.name;
+        return;
+      }
+      if (index === array.length - 1) {
+        description += ` and ${project.name}.\n\n`;
+        return;
+      }
+      description += `, ${project.name}`;
+    });
+    description += '다음 시험이 진행됩니다 :\n\n';
+    projects.forEach(project => {
+      description += `- ${project.name}\r\n`;
+    });
+    return description;
+  };
+  return {
+    intraId: originalExam.id,
+    title: originalExam.name,
+    description: makeDescription(originalExam.projects),
+    location: originalExam.location,
+    category: 'exam',
+    maxSubscribers: originalExam.max_people,
+    currentSubscribers: originalExam.nbr_subscribers,
+    beginAt: originalExam.begin_at,
+    endAt: originalExam.end_at,
+    tags: null,
+    intraCreatedAt: originalExam.created_at,
+    intraUpdatedAt: originalExam.updated_at,
+    source: CONSTANTS.EVENT_SOURCE_42API,
   };
 };
 
@@ -263,74 +302,79 @@ const updateEventInDb = async (newEvent, eventId = null) => {
 
 const SEOUL_CAMPUS_ID = '29';
 
+const _syncEvents = events => {
+  events.forEach(async event42 => {
+    const existingEvent = await Event.findOne({
+      where: { intraId: event42.id },
+      raw: true,
+    });
+    if (!existingEvent) {
+      // save new event in db
+      const newEvent = await saveEventInDb(
+        normalizeApiEventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE_42API),
+        CONSTANTS.EVENT_SOURCE_42API,
+      );
+      console.log(
+        `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
+      );
+    } else {
+      if (event42.updated_at !== existingEvent.intraUpdatedAt) {
+        // update event in db
+        const updatedEvent = await updateEventInDb(
+          normalizeApiEventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE_42API),
+        );
+        console.log(
+          `🆙 event updated: ${updatedEvent.intraId} ${updatedEvent.title}`,
+        );
+      }
+    }
+  });
+};
+
+const _syncExams = originalExams => {
+  const exams = [
+    ...new Map(originalExams.map(exam => [exam.id, exam])).values(),
+  ]
+  Promise.all(
+    exams.map(async exam => {
+      const existingExam = await Event.findOne({
+        where: { intraId: exam.id },
+        raw: true,
+      });
+      if (!existingExam) {
+        // save new event as exam in db
+        const newExam = await saveEventInDb(
+          normalizeApiExamToSaveInDb(exam),
+          CONSTANTS.EVENT_SOURCE_42API,
+        );
+        console.log(
+          `🆕 new event created: ${newExam.intraId} ${newExam.title}`,
+        );
+      } else {
+        if (exam.updated_at !== existingExam.intraUpdatedAt) {
+          // update event as exam in db
+          const updatedExam = await updateEventInDb(
+            normalizeApiExamToSaveInDb(exam),
+          );
+          console.log(
+            `🆙 event updated: ${updatedExam.intraId} ${updatedExam.title}`,
+          );
+        }
+      }
+    })
+  );
+}
+
 const syncUpComingEventsOnDbAndApi = async () => {
   console.log('syncUpComingEventsOnDbAndApi');
   try {
     const eventsFrom42Api = await get42CampusUpComingEvents(SEOUL_CAMPUS_ID);
     if (!eventsFrom42Api) throw new Error('campus events not found');
-    eventsFrom42Api.forEach(async event42 => {
-      const existingEvent = await Event.findOne({
-        where: { intraId: event42.id },
-        raw: true,
-      });
-      if (!existingEvent) {
-        // save new event in db
-        const newEvent = await saveEventInDb(
-          normalizeApiEventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE_42API),
-          CONSTANTS.EVENT_SOURCE_42API,
-        );
-        console.log(
-          `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
-        );
-      } else {
-        if (event42.updated_at !== existingEvent.intraUpdatedAt) {
-          // update event in db
-          const updatedEvent = await updateEventInDb(
-            normalizeApiEventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE_42API),
-          );
-          console.log(
-            `🆙 event updated: ${updatedEvent.intraId} ${updatedEvent.title}`,
-          );
-        }
-      }
-    });
-  } catch (err) {
-    console.error(err);
-  }
-};
+    _syncEvents(eventsFrom42Api);
 
-const syncRecentThirtyEventsOnDbAndApi = async () => {
-  try {
-    const eventsFrom42Api = await get42CampusRecentThirtyEvents(
-      SEOUL_CAMPUS_ID,
-    );
-    if (!eventsFrom42Api) throw new Error('campus events not found');
-    eventsFrom42Api.forEach(async event42 => {
-      const eventInDb = await Event.findOne({
-        where: { intraId: event42.id },
-        raw: true,
-      });
-      if (!eventInDb) {
-        // save new event in db
-        const newEvent = await saveEventInDb(
-          normalizeApiEventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE_42API),
-          CONSTANTS.EVENT_SOURCE_42API,
-        );
-        console.log(
-          `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
-        );
-      } else {
-        if (event42.updated_at !== eventInDb.intraUpdatedAt) {
-          // update event in db
-          const updatedEvent = await updateEventInDb(
-            normalizeApiEventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE_42API),
-          );
-          console.log(
-            `🆙 event updated: ${updatedEvent.intraId} ${updatedEvent.title}`,
-          );
-        }
-      }
-    });
+    const examsFrom42Api = await get42CampusCadetUpComingExams(SEOUL_CAMPUS_ID);
+    if (!examsFrom42Api) throw new Error('campus exams not found');
+    _syncExams(examsFrom42Api);
   } catch (err) {
     console.error(err);
   }
@@ -340,34 +384,13 @@ const syncEveryEventsOnDbAndApi = async () => {
   try {
     const eventsFrom42Api = await get42CampusEveryEvents(SEOUL_CAMPUS_ID);
     if (!eventsFrom42Api) throw new Error('campus events not found');
-    eventsFrom42Api.forEach(async event42 => {
-      const eventInDb = await Event.findOne({
-        where: { intraId: event42.id },
-        raw: true,
-      });
-      if (!eventInDb) {
-        // save new event in db
-        const newEvent = await saveEventInDb(
-          normalizeApiEventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE_42API),
-          CONSTANTS.EVENT_SOURCE_42API,
-        );
-        console.log(
-          `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
-        );
-      } else {
-        if (event42.updated_at !== eventInDb.intraUpdatedAt) {
-          // update event in db
-          const updatedEvent = await updateEventInDb(
-            normalizeApiEventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE_42API),
-          );
-          console.log(
-            `🆙 event updated: ${updatedEvent.intraId} ${updatedEvent.title}`,
-          );
-        }
-      }
-    });
+    _syncEvents(eventsFrom42Api);
+
+    const examsFrom42Api = await get42CampusCadetEveryExams(SEOUL_CAMPUS_ID);
+    if (!examsFrom42Api) throw new Error('campus exams not found');
+    _syncExams(examsFrom42Api);
   } catch (err) {
-    console.error
+    console.error;
   }
 };
 
@@ -468,7 +491,5 @@ module.exports = {
   getUserEventsInDb,
   getUserEventInDb,
   syncUpComingEventsOnDbAndApi,
-  syncRecentThirtyEventsOnDbAndApi,
   syncEveryEventsOnDbAndApi,
-  syncUserEventsOnDbAndApi,
 };
