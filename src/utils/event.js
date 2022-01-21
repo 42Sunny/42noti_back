@@ -45,7 +45,7 @@ const normalizeApiExamToSaveInDb = originalExam => {
       }
       description += `, ${project.name}`;
     });
-    description += '다음 시험이 진행됩니다 :\n\n';
+    description += '\n\n다음 시험이 진행됩니다 :\n\n';
     projects.forEach(project => {
       description += `- ${project.name}\r\n`;
     });
@@ -61,7 +61,7 @@ const normalizeApiExamToSaveInDb = originalExam => {
     currentSubscribers: originalExam.nbr_subscribers,
     beginAt: originalExam.begin_at,
     endAt: originalExam.end_at,
-    tags: null,
+    tags: '[]',
     intraCreatedAt: originalExam.created_at,
     intraUpdatedAt: originalExam.updated_at,
     source: CONSTANTS.EVENT_SOURCE_42API,
