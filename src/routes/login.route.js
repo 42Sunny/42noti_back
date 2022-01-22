@@ -17,12 +17,9 @@ router.get(
   '/42',
   async (req, res, next) => {
     // NOTE: temporary solution
-    // const jwt = req.cookies[env.cookie.auth];
-    // console.log('`/42` req.isAuthenticated:', req.isAuthenticated());
+    const jwt = req.cookies[env.cookie.auth];
 
-    // if (jwt || req.isAuthenticated()) {
-    if (req.isAuthenticated()) {
-      console.log('req.user: ', req.user);
+    if (jwt) {
       return res.redirect(env.frontUrl);
     }
     next();

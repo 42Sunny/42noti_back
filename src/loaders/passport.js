@@ -7,7 +7,6 @@ const env = require('../config');
 const User = require('../models/user.model');
 
 const fortytwoStrategyCallback = async (
-  req,
   accessToken,
   refreshToken,
   profile,
@@ -120,7 +119,6 @@ module.exports = app => {
   );
 
   app.use(passport.initialize());
-  app.use(passport.session());
 
   passport.serializeUser(function (user, done) {
     done(null, user);

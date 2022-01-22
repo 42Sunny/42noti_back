@@ -12,8 +12,12 @@ const {
 
 const router = express.Router();
 
-router.get('/my/events', passport.authenticate('jwt'), apiMyEventsController);
-router.get('/my', passport.authenticate('jwt'), apiMyUserDataController);
+router.get(
+  '/my/events',
+  passport.authenticate('jwt', { session: false }),
+  apiMyEventsController,
+);
+router.get('/my', passport.authenticate('jwt', { session: false }), apiMyUserDataController);
 router.get('/:intraUsername/events', apiUserEventsController);
 router.get('/:intraUsername', apiUserDataController);
 

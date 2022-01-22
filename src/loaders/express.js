@@ -1,11 +1,9 @@
 const createError = require('http-errors');
 const express = require('express');
-const path = require('path');
 const cors = require('cors');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const context = require('express-http-context');
-const session = require('express-session');
 const env = require('../config');
 const logger = require('./winston');
 const passport = require('./passport');
@@ -24,7 +22,7 @@ const clientErrorHandler = (err, req, res, next) => {
   }
 };
 
-const errorHandler= (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
@@ -37,13 +35,8 @@ module.exports = async app => {
   app.use(express.urlencoded({ extended: false }));
 
   app.use(morgan(morganFormat, { stream: logger.stream }));
-  app.use(
-    // TODO: change secret using env
-    session({secret: `meetup`, resave: false, saveUninitialized: false}),
-  );
 
   passport(app);
-
 
   app.use(context.middleware);
   app.use(
