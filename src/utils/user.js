@@ -7,9 +7,6 @@ module.exports = {
         where: { intraUsername: intraUsername },
         raw: true,
       });
-      if (!user) {
-        return null;
-      }
       return user;
     } catch (err) {
       console.error(err);
