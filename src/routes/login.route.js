@@ -9,6 +9,7 @@ router.get(
   '/42/return',
   passport.authenticate('42', {
     failureRedirect: env.frontUrl,
+    session: false,
   }),
   loginReturnController,
 );
@@ -26,6 +27,7 @@ router.get(
   },
   passport.authenticate('42', {
     failureRedirect: env.frontUrl,
+    session: false,
   }),
 
 );
