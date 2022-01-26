@@ -1,6 +1,4 @@
 const httpStatus = require('http-status');
-const jwt = require('jsonwebtoken');
-const env = require('../config');
 const { getUser } = require('../services/user.service');
 
 module.exports = {
@@ -19,11 +17,7 @@ module.exports = {
     }
   },
   apiMyUserDataController: async (req, res) => {
-    const decodedToken = jwt.verify(
-      req.cookies[env.cookie.auth],
-      env.cookie.secret,
-    );
-    const intraUsername = decodedToken.username;
+    const intraUsername = req.user.jwt.name;
 
     try {
       const data = await getUser(intraUsername);

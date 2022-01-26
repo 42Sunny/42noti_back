@@ -1,6 +1,4 @@
 const httpStatus = require('http-status');
-const jwt = require('jsonwebtoken');
-const env = require('../config');
 const CONSTANTS = require('../utils/constants');
 const {
   getCampusEvents,
@@ -17,11 +15,7 @@ const { getUser } = require('../services/user.service');
 const { saveEventInDb, saveUserEventInDb } = require('../utils/event');
 
 const postEventController = async (req, res) => {
-  const decodedToken = jwt.verify(
-    req.cookies[env.cookie.auth],
-    env.cookie.secret,
-  );
-  const intraUsername = decodedToken.username;
+  const intraUsername = req.user.jwt.name;
   const body = req.body;
 
   const existingUser = await getUser(intraUsername);
@@ -92,11 +86,7 @@ const postEventController = async (req, res) => {
 };
 
 const putEventController = async (req, res) => {
-  const decodedToken = jwt.verify(
-    req.cookies[env.cookie.auth],
-    env.cookie.secret,
-  );
-  const intraUsername = decodedToken.username;
+  const intraUsername = req.user.jwt.name;
   const eventId = req.params.eventId;
   const body = req.body;
 
@@ -162,11 +152,7 @@ const putEventController = async (req, res) => {
 };
 
 const deleteEventController = async (req, res) => {
-  const decodedToken = jwt.verify(
-    req.cookies[env.cookie.auth],
-    env.cookie.secret,
-  );
-  const intraUsername = decodedToken.username;
+  const intraUsername = req.user.jwt.name;
   const eventId = req.params.eventId;
 
   const existingUser = await getUser(intraUsername);
@@ -258,11 +244,7 @@ module.exports = {
     }
   },
   apiMyEventsController: async (req, res) => {
-    const decodedToken = jwt.verify(
-      req.cookies[env.cookie.auth],
-      env.cookie.secret,
-    );
-    const intraUsername = decodedToken.username;
+    const intraUsername = req.user.jwt.name;
     const range = req.query.range;
 
     try {
@@ -288,11 +270,7 @@ module.exports = {
     }
   },
   apiUserEventReminderStatusController: async (req, res) => {
-    const decodedToken = jwt.verify(
-      req.cookies[env.cookie.auth],
-      env.cookie.secret,
-    );
-    const intraUsername = decodedToken.username;
+    const intraUsername = req.user.jwt.name;
     const { eventId } = req.params;
 
     try {
@@ -318,11 +296,7 @@ module.exports = {
     }
   },
   apiUserEventReminderOnController: async (req, res) => {
-    const decodedToken = jwt.verify(
-      req.cookies[env.cookie.auth],
-      env.cookie.secret,
-    );
-    const intraUsername = decodedToken.username;
+    const intraUsername = req.user.jwt.name;
     const { eventId } = req.params;
 
     try {
@@ -373,11 +347,7 @@ module.exports = {
     }
   },
   apiUserEventReminderOffController: async (req, res) => {
-    const decodedToken = jwt.verify(
-      req.cookies[env.cookie.auth],
-      env.cookie.secret,
-    );
-    const intraUsername = decodedToken.username;
+    const intraUsername = req.user.jwt.name;
     const { eventId } = req.params;
 
     try {
