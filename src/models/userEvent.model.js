@@ -116,6 +116,9 @@ module.exports = class UserEvent extends Model {
       where: { UserId: userId, isSetReminder: true },
       raw: true,
     });
+    if (userEvents.length === 0) {
+      return null;
+    }
     return userEvents;
   }
 
@@ -124,6 +127,9 @@ module.exports = class UserEvent extends Model {
       where: { EventId: eventId, isSetReminder: true },
       raw: true,
     });
+    if (userEvents.length === 0) {
+      return null;
+    }
     return userEvents;
   }
 };

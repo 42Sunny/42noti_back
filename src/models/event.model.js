@@ -174,6 +174,9 @@ module.exports = class Event extends Model {
       limit: limit === -1 ? null : limit,
       raw: true,
     });
+    if (events.length === 0) {
+      return null;
+    }
     return events;
   }
 };
