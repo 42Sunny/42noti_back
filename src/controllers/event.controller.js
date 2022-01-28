@@ -12,7 +12,7 @@ const {
   setUserEventReminderOff,
 } = require('../services/event.service');
 const { getUser } = require('../services/user.service');
-const { saveEventInDb, saveUserEventInDb } = require('../utils/event');
+const { Event, UserEvent } = require('../models');
 
 const postEventController = async (req, res) => {
   const intraUsername = req.user.jwt.name;
@@ -76,7 +76,7 @@ const postEventController = async (req, res) => {
   else if (body.source === 'mock') source = CONSTANTS.EVENT_SOURCE_MOCK;
   else source = 0;
 
-  const savedEvent = await saveEventInDb(eventData, source);
+  const savedEvent = await Event.saveEvent(eventData, source);
   const parse = JSON.parse(savedEvent.dataValues.tags);
   const resTags = parse.map(tag => tag.name);
   return res.status(httpStatus.OK).json({
@@ -225,6 +225,7 @@ module.exports = {
   },
   apiUserEventsController: async (req, res) => {
     const { intraUsername } = req.params;
+
     try {
       const user = await getUser(intraUsername);
       if (!user) {
@@ -319,12 +320,16 @@ module.exports = {
           reminder: null,
         });
       }
+      const beforeMinutesThenBeginAt = new Date(
+        event.beginAt.getTime() - 1000 * 60 * CONSTANTS.REMINDER_BEFORE_MINUTES,
+      );
 
       const userEvent = await getUserEvent(intraUsername, eventId);
       if (!userEvent) {
-        await saveUserEventInDb(intraUsername, eventId, {
+        await UserEvent.saveUserEvent(user.id, eventId, {
           isSubscribedOnIntra: false,
           isSetReminder: true,
+          remindAt: beforeMinutesThenBeginAt,
         });
       }
 

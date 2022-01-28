@@ -1,5 +1,5 @@
 const httpStatus = require('http-status');
-const { getUser } = require('../services/user.service');
+const { getUser, getMyUserData } = require('../services/user.service');
 
 module.exports = {
   apiUserDataController: async (req, res) => {
@@ -20,7 +20,7 @@ module.exports = {
     const intraUsername = req.user.jwt.name;
 
     try {
-      const data = await getUser(intraUsername);
+      const data = await getMyUserData(intraUsername);
       if (!data) {
         res.status(httpStatus.NOT_FOUND).json({
           message: 'user not found',

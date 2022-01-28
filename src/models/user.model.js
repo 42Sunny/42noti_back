@@ -1,4 +1,4 @@
-const { Sequelize, DataTypes, Model } = require('sequelize');
+const { DataTypes, Model } = require('sequelize');
 
 module.exports = class User extends Model {
   static init(sequelize) {
@@ -42,5 +42,20 @@ module.exports = class User extends Model {
 
   static associate(db) {
     db.User.belongsToMany(db.Event, { as: 'Event', through: 'UserEvent' });
+  }
+
+  static async getUser(intraUsername) {
+    try {
+      const user = await this.findOne({
+        where: { intraUsername },
+        raw: true,
+      });
+      if (!user) {
+        throw new Error('user not found');
+      }
+      return user;
+    } catch (err) {
+      console.error(err);
+    }
   }
 };

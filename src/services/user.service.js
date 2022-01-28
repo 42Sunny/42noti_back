@@ -1,9 +1,20 @@
-const { getUserInDb } = require('../utils/user');
+const { User } = require('../models');
 const { get42User } = require('../utils/42api');
 
 module.exports = {
+  getMyUserData: async intraUsername => {
+    try {
+      const user = await User.getUser(intraUsername);
+      if (!user) {
+        throw new Error('user not found');
+      }
+      return user;
+    } catch (err) {
+      console.error(err);
+    }
+  },
   getUser: async intraUsername => {
-    const user = await getUserInDb(intraUsername);
+    const user = await User.getUser(intraUsername);
     if (!user) {
       const userFromApi = await get42User(intraUsername);
       if (!userFromApi) {

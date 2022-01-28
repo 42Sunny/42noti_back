@@ -1,17 +1,11 @@
 const { Op } = require('sequelize');
-const UserEvent = require('../models/userEvent.model');
 const {
-  normalizeDbEventToResponse,
-  getEventsInDb,
-  getEventInDb,
-  updateEventInDb,
-  deleteEventInDb,
-  getUserEventsInDb,
-  getUserEventInDb,
+  normalizeEventToResponse,
+  updateUserEventsRemindAt,
   syncUpComingEventsOnDbAndApi,
   // syncUserEventsOnDbAndApi,
 } = require('../utils/event');
-const { getUserInDb } = require('../utils/user');
+const { User, Event, UserEvent } = require('../models');
 const {
   updateEveryScheduleReminderSlackDm,
   addScheduleReminderSlackDm,
@@ -26,6 +20,7 @@ module.exports = {
     const now = new Date();
     const where = {};
 
+    // TODO: move query to model
     if (range === 'upcoming') where.beginAt = { [Op.gt]: now };
     else if (range === 'past') where.beginAt = { [Op.lte]: now };
     else if (range === 'all')
@@ -46,36 +41,41 @@ module.exports = {
     where.limit = range === 'upcoming' ? -1 : Number(limit);
 
     if (forceUpdate) await syncUpComingEventsOnDbAndApi();
-    const originalData = await getEventsInDb(where);
+    const originalData = await Event.getEvents(where);
     if (!originalData) {
       return null;
     }
     const data = await originalData.map(event =>
-      normalizeDbEventToResponse(event),
+      normalizeEventToResponse(event),
     );
     return data;
   },
   getEvent: async eventId => {
-    const originalData = await getEventInDb(eventId);
+    const originalData = await Event.getEvent(eventId);
     if (!originalData) {
       return null;
     }
-    const data = normalizeDbEventToResponse(originalData);
+    const data = normalizeEventToResponse(originalData);
     return data;
   },
-  updateEvent: async (eventId, newEvent) => {
-    const originalData = await getEventInDb(eventId);
-    if (!originalData) {
+  updateEvent: async (eventId, data) => {
+    const existingEvent = await Event.getEvent(eventId);
+    if (!existingEvent) {
       return null;
     }
-    const data = await updateEventInDb(newEvent, eventId);
-    // TODO: send slack DM to all users
-    await sendEveryoneUpdatedEventSlackDm(eventId);
-    await updateEveryScheduleReminderSlackDm(eventId);
-    return normalizeDbEventToResponse(data);
+    const event = await Event.updateEvent(data, eventId);
+
+    const remindAt = new Date(
+      new Date(event.beginAt).getTime() -
+        1000 * 60 * CONSTANTS.REMINDER_BEFORE_EVENT_MINUTES,
+    );
+    await updateUserEventsRemindAt(event.id, remindAt);
+    await sendEveryoneUpdatedEventSlackDm(event.id);
+    await updateEveryScheduleReminderSlackDm(event.id);
+    return normalizeEventToResponse(event);
   },
   deleteEvent: async eventId => {
-    const originalData = await deleteEventInDb(eventId);
+    const originalData = await Event.deleteEvent(eventId);
     if (!originalData) {
       return null;
     }
@@ -83,30 +83,35 @@ module.exports = {
   },
   getUserEvents: async intraUsername => {
     // await syncUserEventsOnDbAndApi(intraUsername); // TODO: do this only force update.
-    const originalData = await getUserEventsInDb(intraUsername);
-    if (!originalData) {
+    const user = await User.getUser(intraUsername);
+    const userEvents = await UserEvent.getUserEventsByUserId(user.id);
+    if (!userEvents) {
       return null;
     }
-    const data = originalData.map(event => normalizeDbEventToResponse(event));
-    return data;
+    return Promise.all(
+      userEvents.map(async userEvent => {
+        const event = await Event.getEvent(userEvent.EventId);
+        return normalizeEventToResponse(event);
+      }),
+    );
   },
   getUserEvent: async (intraUsername, eventId) => {
-    const originalData = await getUserEventInDb(intraUsername, eventId);
-    if (!originalData) {
+    const user = await User.getUser(intraUsername);
+    const userEvent = await UserEvent.getUserEvent(user.id, eventId);
+    if (!userEvent) {
       return null;
     }
-    const data = normalizeDbEventToResponse(originalData);
-    return data;
+    const event = await Event.getEvent(userEvent.EventId);
+    return normalizeEventToResponse(event);
   },
   getUserEventReminderStatus: async (intraUsername, eventId) => {
     try {
-      const user = await getUserInDb(intraUsername);
-      const event = await getEventInDb(eventId);
+      const user = await User.getUser(intraUsername);
 
       const userEvent = await UserEvent.findOne({
         where: {
           userId: user.id,
-          eventId: event.id,
+          eventId: eventId,
         },
         raw: true,
       });
@@ -120,13 +125,12 @@ module.exports = {
   },
   setUserEventReminderOn: async (intraUsername, eventId, remindAt) => {
     try {
-      const user = await getUserInDb(intraUsername);
-      const event = await getEventInDb(eventId);
+      const user = await User.getUser(intraUsername);
 
       const userEvent = await UserEvent.findOne({
         where: {
           UserId: user.id,
-          EventId: event.id,
+          EventId: eventId,
         },
       });
       if (!userEvent) {
@@ -143,13 +147,12 @@ module.exports = {
   },
   setUserEventReminderOff: async (intraUsername, eventId) => {
     try {
-      const user = await getUserInDb(intraUsername);
-      const event = await getEventInDb(eventId);
+      const user = await User.getUser(intraUsername);
 
       const userEvent = await UserEvent.findOne({
         where: {
           userId: user.id,
-          eventId: event.id,
+          eventId: eventId,
         },
       });
       if (!userEvent) {
