@@ -7,6 +7,8 @@ const loginRouter = require('./login.route');
 const eventRouter = require('./event.route');
 const userRouter = require('./user.route');
 
+const { logoutController } = require('../controllers/login.controller');
+
 const router = express.Router();
 
 router
@@ -27,6 +29,7 @@ router.use('/test', testRouter);
 router.use('/dummy', dummyRouter);
 
 router.use('/login', loginRouter);
+router.get('/logout', logoutController);
 router.use('/events', passport.authenticate('jwt', { session: false }), eventRouter);
 router.use('/users', passport.authenticate('jwt', { session: false }), userRouter);
 

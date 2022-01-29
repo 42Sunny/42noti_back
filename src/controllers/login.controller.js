@@ -20,6 +20,16 @@ const loginReturnController = async (req, res) => {
   }
 };
 
+const logoutController = async (req, res) => {
+  try {
+    res.clearCookie(env.cookie.auth);
+    res.redirect(env.frontUrl);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 module.exports = {
   loginReturnController,
+  logoutController,
 };
