@@ -167,10 +167,10 @@ const _syncExams = originalExams => {
             _normalize42ExamToSaveInDb(exam),
           );
           const remindAt = new Date(
-            new Date(updatedEvent.beginAt).getTime() -
+            new Date(updatedExam.beginAt).getTime() -
               1000 * 60 * CONSTANTS.REMINDER_BEFORE_EVENT_MINUTES,
           );
-          await updateUserEventsRemindAt(updatedEvent.id, remindAt);
+          await updateUserEventsRemindAt(updatedExam.id, remindAt);
           console.log(
             `🆙 exam event updated: ${updatedExam.intraId} ${updatedExam.title}`,
           );
