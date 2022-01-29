@@ -139,7 +139,7 @@ module.exports = class Event extends Model {
         throw new Error('event not found');
       }
       const updatedEvent = await event.update(data);
-      return updatedEvent;
+      return updatedEvent.dataValues;
     } catch (err) {
       console.error(err);
     }

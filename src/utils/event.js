@@ -104,6 +104,9 @@ const updateUserEventsRemindAt = async (eventId, remindAt) => {
   try {
     const now = new Date();
     const userEvents = await UserEvent.getUserEventsByEventId(eventId);
+    if (!userEvents) {
+      return;
+    }
     userEvents.forEach(async userEvent => {
       await UserEvent.updateUserEvent(userEvent.UserId, userEvent.EventId, {
         remindAt: remindAt > now ? remindAt : null,
