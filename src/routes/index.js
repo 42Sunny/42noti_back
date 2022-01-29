@@ -1,4 +1,6 @@
 const express = require('express');
+const passport = require('passport');
+
 const testRouter = require('./test.route');
 const dummyRouter = require('./dummy.route');
 const loginRouter = require('./login.route');
@@ -25,8 +27,8 @@ router.use('/test', testRouter);
 router.use('/dummy', dummyRouter);
 
 router.use('/login', loginRouter);
-router.use('/events', eventRouter);
-router.use('/users', userRouter);
+router.use('/events', passport.authenticate('jwt', { session: false }), eventRouter);
+router.use('/users', passport.authenticate('jwt', { session: false }), userRouter);
 
 router.use('/', (req, res) => {
   res.send('42Event API');

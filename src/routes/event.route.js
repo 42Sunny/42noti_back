@@ -1,5 +1,5 @@
 const express = require('express');
-const passport = require('passport');
+
 const {
   eventsController,
   eventController,
@@ -15,27 +15,15 @@ const {
 
 const router = express.Router();
 
-router.get(
-  '/:eventId/reminder',
-  passport.authenticate('jwt', { session: false }),
-  userEventReminderStatusController,
-);
-router.post(
-  '/:eventId/reminder',
-  passport.authenticate('jwt', { session: false }),
-  userEventReminderOnController,
-);
-router.delete(
-  '/:eventId/reminder',
-  passport.authenticate('jwt', { session: false }),
-  userEventReminderOffController,
-);
+router.get('/:eventId/reminder', userEventReminderStatusController);
+router.post('/:eventId/reminder', userEventReminderOnController);
+router.delete('/:eventId/reminder', userEventReminderOffController);
 
 router.get('/:eventId', eventController);
 router.get('/', eventsController);
 
-router.post('/', passport.authenticate('jwt', { session: false }), postEventController);
-router.put('/:eventId', passport.authenticate('jwt', { session: false }), putEventController);
-router.delete('/:eventId', passport.authenticate('jwt', { session: false }), deleteEventController);
+router.post('/', postEventController);
+router.put('/:eventId', putEventController);
+router.delete('/:eventId', deleteEventController);
 
 module.exports = router;
