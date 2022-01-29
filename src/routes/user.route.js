@@ -8,7 +8,7 @@ const {
 const {
   myEventsController,
   userEventsController,
-} = require('../controllers/event.controller');
+} = require('../controllers/userEvent.controller');
 
 const router = express.Router();
 

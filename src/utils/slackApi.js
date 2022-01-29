@@ -2,7 +2,7 @@ const { App } = require('@slack/bolt');
 const { WebClient, LogLevel } = require('@slack/web-api');
 const env = require('../config');
 const cache = require('./cache');
-const User = require('../models/user.model');
+const { User } = require('../models');
 
 const SLACK_BOT_TOKEN = env.slack.botToken;
 const SLACK_SIGNING_SECRET = env.slack.secret;
@@ -46,7 +46,7 @@ const findDmChannelId = async username => {
   }
 };
 
-const findDmChannelIdCache = async username => {
+const findCachedDmChannelId = async username => {
   console.log('findDmChannelIdCache: ', username);
   try {
     const cached = cache.get(`slack-dmChannelId-${username}`);
@@ -231,60 +231,70 @@ const sendUpdatedEventReminder = async (channelId, event) => {
   }
 };
 
-module.exports = {
-  cacheSlackUserIds: async () => {
-    console.log('cacheSlackUserIds');
-    try {
-      const users = await User.findAll({
-        attributes: ['intraUsername'],
-        group: ['intraUsername'],
-        raw: true,
+const cacheSlackUserIds = async () => {
+  console.log('cacheSlackUserIds');
+  try {
+    const users = await User.findAll({
+      attributes: ['intraUsername'],
+      group: ['intraUsername'],
+      raw: true,
+    })
+    const intraUsernameArray = users.map(user => user.intraUsername);
+    console.log(intraUsernameArray);
+    Promise.all((
+      intraUsernameArray.map(async username => {
+        if (cache.has(`slack-dmChannelId-${username}`)) {
+          return;
+        }
+        const dmChannelId = await findCachedDmChannelId(username);
+        cache.set(`slack-dmChannelId-${username}`, dmChannelId);
       })
-      const intraUsernameArray = users.map(user => user.intraUsername);
-      console.log(intraUsernameArray);
-      Promise.all((
-        intraUsernameArray.map(async username => {
-          if (cache.has(`slack-dmChannelId-${username}`)) {
-            return;
-          }
-          const dmChannelId = await findDmChannelIdCache(username);
-          cache.set(`slack-dmChannelId-${username}`, dmChannelId);
-        })
-      ));
-    } catch (error) {
-      console.error(error);
-    }
-  },
-  sendMessageToUser: async (username, message) => {
-    try {
-      const dmChannelId = await findDmChannelIdCache(username);
-      await sendMessage(dmChannelId, message);
-    } catch (error) {
-      console.error(error);
-    }
-  },
-  sendEventReminderToUser: async (username, event) => {
-    try {
-      const dmChannelId = await findDmChannelIdCache(username);
-      await sendEventReminder(dmChannelId, event);
-    } catch (error) {
-      console.error(error);
-    }
-  },
-  sendUpdatedEventReminderToUser: async (username, event) => {
-    try {
-      const dmChannelId = await findDmChannelIdCache(username);
-      await sendUpdatedEventReminder(dmChannelId, event);
-    } catch (error) {
-      console.error(error);
-    }
-  },
-  sendMessageToChannel: async (channelName, message) => {
-    try {
-      const channelId = await findChannelIdCache(channelName);
-      await sendMessage(channelId, message);
-    } catch (error) {
-      console.error(error);
-    }
-  },
+    ));
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const sendMessageToUser = async (username, message) => {
+  try {
+    const dmChannelId = await findCachedDmChannelId(username);
+    await sendMessage(dmChannelId, message);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const sendEventReminderToUser = async (username, event) => {
+  try {
+    const dmChannelId = await findCachedDmChannelId(username);
+    await sendEventReminder(dmChannelId, event);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const sendUpdatedEventReminderToUser = async (username, event) => {
+  try {
+    const dmChannelId = await findCachedDmChannelId(username);
+    await sendUpdatedEventReminder(dmChannelId, event);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const sendMessageToChannel = async (channelName, message) => {
+  try {
+    const channelId = await findChannelIdCache(channelName);
+    await sendMessage(channelId, message);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+module.exports = {
+  cacheSlackUserIds,
+  sendMessageToUser,
+  sendEventReminderToUser,
+  sendUpdatedEventReminderToUser,
+  sendMessageToChannel,
 };

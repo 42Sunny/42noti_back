@@ -28,8 +28,7 @@ router.get(
   passport.authenticate('42', {
     failureRedirect: env.frontUrl,
     session: false,
-  }),
-
+  })
 );
 
 module.exports = router;

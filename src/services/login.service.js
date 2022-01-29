@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken');
 const context = require('express-http-context');
 const env = require('../config');
-const User = require('../models/user.model');
+const { User } = require('../models');
 
-const getUserData = async user => {
+const _getUserData = async user => {
   const foundedUser = await User.findOne({
     where: { intraId: user.intraId },
   });
@@ -30,7 +30,7 @@ const getUserData = async user => {
   return foundedUser;
 };
 
-const generateToken = user => {
+const _generateToken = user => {
   try {
     const payload = {
       username: user.intraUsername,
@@ -47,19 +47,21 @@ const generateToken = user => {
   }
 };
 
+const getToken = async user => {
+  if (!user) {
+    console.error('no user data:', user);
+    // TODO error handler
+  }
+  const userData = await _getUserData(user);
+  const token = await _generateToken(userData);
+  const decodedToken = jwt.decode(token);
+  const cookieOption = {
+    domain: env.cookie.domain,
+    expires: new Date(decodedToken.exp * 1000),
+  };
+  return { token, cookieOption };
+};
+
 module.exports = {
-  getToken: async user => {
-    if (!user) {
-      console.error('no user data:', user);
-      // TODO error handler
-    }
-    const userData = await getUserData(user);
-    const token = await generateToken(userData);
-    const decodedToken = jwt.decode(token);
-    const cookieOption = {
-      domain: env.cookie.domain,
-      expires: new Date(decodedToken.exp * 1000),
-    };
-    return { token, cookieOption };
-  },
+  getToken,
 };

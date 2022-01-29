@@ -4,14 +4,9 @@ const FortyTwoStrategy = require('passport-42').Strategy;
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const env = require('../config');
-const User = require('../models/user.model');
+const { User } = require('../models');
 
-const fortytwoStrategyCallback = async (
-  accessToken,
-  refreshToken,
-  profile,
-  done,
-) => {
+const fortytwoStrategyCallback = async (accessToken, refreshToken, profile, done) => {
   console.log('fortytwoStrategyCallback');
   console.log('accessToken ', accessToken);
   console.log('refreshToken ', refreshToken);

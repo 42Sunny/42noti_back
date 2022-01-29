@@ -2,7 +2,7 @@ const express = require('express');
 const loaders = require('./loaders');
 const env = require('./config');
 
-async function startServer() {
+const startServer = async () => {
   const app = express();
 
   await loaders(app);

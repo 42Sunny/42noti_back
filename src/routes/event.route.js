@@ -3,13 +3,15 @@ const passport = require('passport');
 const {
   eventsController,
   eventController,
-  userEventReminderStatusController,
-  userEventReminderOnController,
-  userEventReminderOffController,
   postEventController,
   putEventController,
   deleteEventController,
 } = require('../controllers/event.controller');
+const {
+  userEventReminderStatusController,
+  userEventReminderOnController,
+  userEventReminderOffController,
+} = require('../controllers/userEvent.controller');
 
 const router = express.Router();
 

@@ -24,17 +24,20 @@ const get42Token = async () => {
     console.error(err);
   }
 };
-module.exports = {
-  get42TokenCache: async () => {
-    const token = cache.get('42token');
-    if (token) {
-      console.log('get42TokenCache: has token');
-      return token;
-    }
-    const data = await get42Token();
-    console.log('get42TokenCache');
-    console.log(data)
-    cache.set('42token', data, data.expires_in);
-    return data;
+
+const get42CachedToken= async () => {
+  const token = cache.get('42token');
+  if (token) {
+    console.log('get42CachedToken: has token');
+    return token;
   }
+  const data = await get42Token();
+  console.log('get42CachedToken');
+  console.log(data)
+  cache.set('42token', data, data.expires_in);
+  return data;
+};
+
+module.exports = {
+  get42CachedToken,
 };

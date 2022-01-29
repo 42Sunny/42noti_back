@@ -1,6 +1,4 @@
-const {
-  syncEveryEventsFrom42,
-} = require('../utils/event');
+const { syncEveryEventsFrom42 } = require('../utils/event');
 const { cacheSlackUserIds } = require('../utils/slackApi');
 const { initEveryScheduleReminderSlackDm } = require('../utils/reminder');
 const {
