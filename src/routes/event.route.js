@@ -1,11 +1,11 @@
 const express = require('express');
 const passport = require('passport');
 const {
-  apiSeoulCampusEventsController,
-  apiEventController,
-  apiUserEventReminderStatusController,
-  apiUserEventReminderOnController,
-  apiUserEventReminderOffController,
+  eventsController,
+  eventController,
+  userEventReminderStatusController,
+  userEventReminderOnController,
+  userEventReminderOffController,
   postEventController,
   putEventController,
   deleteEventController,
@@ -16,21 +16,21 @@ const router = express.Router();
 router.get(
   '/:eventId/reminder',
   passport.authenticate('jwt', { session: false }),
-  apiUserEventReminderStatusController,
+  userEventReminderStatusController,
 );
 router.post(
   '/:eventId/reminder',
   passport.authenticate('jwt', { session: false }),
-  apiUserEventReminderOnController,
+  userEventReminderOnController,
 );
 router.delete(
   '/:eventId/reminder',
   passport.authenticate('jwt', { session: false }),
-  apiUserEventReminderOffController,
+  userEventReminderOffController,
 );
 
-router.get('/:eventId', apiEventController);
-router.get('/', apiSeoulCampusEventsController);
+router.get('/:eventId', eventController);
+router.get('/', eventsController);
 
 router.post('/', passport.authenticate('jwt', { session: false }), postEventController);
 router.put('/:eventId', passport.authenticate('jwt', { session: false }), putEventController);

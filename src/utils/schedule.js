@@ -1,9 +1,6 @@
-const { Op } = require('sequelize');
 const schedule = require('node-schedule');
 const { cacheSlackUserIds } = require('../utils/slackApi');
-const { User, Event, UserEvent } = require('../models');
-const { syncUpComingEventsOnDbAndApi } = require('../utils/event');
-const { sendEventReminderToUser } = require('../utils/slackApi');
+const { syncUpComingEventsFrom42 } = require('../utils/event');
 
 /*
  * scheduleJob(rule, callback)
@@ -12,7 +9,7 @@ const { sendEventReminderToUser } = require('../utils/slackApi');
 
 const syncUpComingEventsEveryMinute = () => {
   const job = schedule.scheduleJob('*/1 * * * *', () => {
-    syncUpComingEventsOnDbAndApi();
+    syncUpComingEventsFrom42();
   });
   return job;
 };
@@ -23,18 +20,6 @@ const cacheSlackUserEveryMonday3am = () => {
     cacheSlackUserIds();
   });
   return job;
-};
-
-const testSetRemindAt = async () => {
-  const now = new Date(new Date().getTime() + 10 * 1000); //
-  // for (let i = 1; i <= 30; i++) {
-  for (let i = 1; i <= 30; i++) {
-    await UserEvent.update(
-      { remindAt: now },
-      // { remindAt: new Date(now.getTime() + 1000 * (0.1 * i)) },
-      { where: { id: i } },
-    );
-  }
 };
 
 module.exports = {

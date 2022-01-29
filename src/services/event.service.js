@@ -2,8 +2,8 @@ const { Op } = require('sequelize');
 const {
   normalizeEventToResponse,
   updateUserEventsRemindAt,
-  syncUpComingEventsOnDbAndApi,
-  // syncUserEventsOnDbAndApi,
+  syncUpComingEventsFrom42,
+  // syncUserEventsFrom42,
 } = require('../utils/event');
 const { User, Event, UserEvent } = require('../models');
 const {
@@ -40,7 +40,7 @@ module.exports = {
     // limit type to number
     where.limit = range === 'upcoming' ? -1 : Number(limit);
 
-    if (forceUpdate) await syncUpComingEventsOnDbAndApi();
+    if (forceUpdate) await syncUpComingEventsFrom42();
     const originalData = await Event.getEvents(where);
     if (!originalData) {
       return null;
@@ -82,7 +82,7 @@ module.exports = {
     return true;
   },
   getUserEvents: async intraUsername => {
-    // await syncUserEventsOnDbAndApi(intraUsername); // TODO: do this only force update.
+    // await syncUserEventsFrom42(intraUsername); // TODO: do this only force update.
     const user = await User.getUser(intraUsername);
     const userEvents = await UserEvent.getUserEventsByUserId(user.id);
     if (!userEvents) {

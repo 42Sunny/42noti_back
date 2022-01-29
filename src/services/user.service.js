@@ -16,11 +16,11 @@ module.exports = {
   getUser: async intraUsername => {
     const user = await User.getUser(intraUsername);
     if (!user) {
-      const userFromApi = await get42User(intraUsername);
-      if (!userFromApi) {
+      const userFrom42 = await get42User(intraUsername);
+      if (!userFrom42) {
         return null;
       }
-      const { id, login, displayname, email, url } = userFromApi;
+      const { id, login, displayname, email, url } = userFrom42;
       const data = {
         id,
         username: login,

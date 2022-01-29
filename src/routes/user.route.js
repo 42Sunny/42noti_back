@@ -2,12 +2,12 @@ const express = require('express');
 const passport = require('passport');
 
 const {
-  apiUserDataController,
-  apiMyUserDataController,
+  userDataController,
+  myUserDataController,
 } = require('../controllers/user.controller');
 const {
-  apiMyEventsController,
-  apiUserEventsController,
+  myEventsController,
+  userEventsController,
 } = require('../controllers/event.controller');
 
 const router = express.Router();
@@ -15,10 +15,10 @@ const router = express.Router();
 router.get(
   '/my/events',
   passport.authenticate('jwt', { session: false }),
-  apiMyEventsController,
+  myEventsController,
 );
-router.get('/my', passport.authenticate('jwt', { session: false }), apiMyUserDataController);
-router.get('/:intraUsername/events', apiUserEventsController);
-router.get('/:intraUsername', apiUserDataController);
+router.get('/my', passport.authenticate('jwt', { session: false }), myUserDataController);
+router.get('/:intraUsername/events', userEventsController);
+router.get('/:intraUsername', userDataController);
 
 module.exports = router;

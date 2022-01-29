@@ -187,7 +187,7 @@ const deleteEventController = async (req, res) => {
 };
 
 module.exports = {
-  apiSeoulCampusEventsController: async (req, res) => {
+  eventsController: async (req, res) => {
     const { range, source, update, page, limit } = req.query;
     const options = {
       range: range || 'upcoming',
@@ -209,7 +209,7 @@ module.exports = {
       console.error(err);
     }
   },
-  apiEventController: async (req, res) => {
+  eventController: async (req, res) => {
     const { eventId } = req.params;
     try {
       const data = await getEvent(eventId);
@@ -223,7 +223,7 @@ module.exports = {
       console.error(err);
     }
   },
-  apiUserEventsController: async (req, res) => {
+  userEventsController: async (req, res) => {
     const { intraUsername } = req.params;
 
     try {
@@ -244,7 +244,7 @@ module.exports = {
       console.error(err);
     }
   },
-  apiMyEventsController: async (req, res) => {
+  myEventsController: async (req, res) => {
     const intraUsername = req.user.jwt.name;
     const range = req.query.range;
 
@@ -270,7 +270,7 @@ module.exports = {
       console.error(err);
     }
   },
-  apiUserEventReminderStatusController: async (req, res) => {
+  userEventReminderStatusController: async (req, res) => {
     const intraUsername = req.user.jwt.name;
     const { eventId } = req.params;
 
@@ -296,7 +296,7 @@ module.exports = {
       console.error(err);
     }
   },
-  apiUserEventReminderOnController: async (req, res) => {
+  userEventReminderOnController: async (req, res) => {
     const intraUsername = req.user.jwt.name;
     const { eventId } = req.params;
 
@@ -351,7 +351,7 @@ module.exports = {
       console.error(err);
     }
   },
-  apiUserEventReminderOffController: async (req, res) => {
+  userEventReminderOffController: async (req, res) => {
     const intraUsername = req.user.jwt.name;
     const { eventId } = req.params;
 

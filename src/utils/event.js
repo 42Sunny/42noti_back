@@ -180,8 +180,8 @@ const _syncExams = originalExams => {
   );
 };
 
-const syncUpComingEventsOnDbAndApi = async () => {
-  console.log('syncUpComingEventsOnDbAndApi');
+const syncUpComingEventsFrom42 = async () => {
+  console.log('syncUpComingEventsFrom42');
   try {
     const eventsFrom42Api = await get42CampusUpComingEvents(SEOUL_CAMPUS_ID);
     if (!eventsFrom42Api) throw new Error('campus events not found');
@@ -195,7 +195,7 @@ const syncUpComingEventsOnDbAndApi = async () => {
   }
 };
 
-const syncEveryEventsOnDbAndApi = async () => {
+const syncEveryEventsFrom42 = async () => {
   try {
     const eventsFrom42Api = await get42CampusEveryEvents(SEOUL_CAMPUS_ID);
     if (!eventsFrom42Api) throw new Error('campus events not found');
@@ -211,9 +211,9 @@ const syncEveryEventsOnDbAndApi = async () => {
 
 const SEOUL_CAMPUS_ID = '29';
 
-const syncUserEventsOnDbAndApi = async intraUsername => {
+const syncUserEventsFrom42 = async intraUsername => {
   try {
-    console.log('syncUserEventsOnDbAndApi');
+    console.log('syncUserEventsFrom42');
     const user = await User.getUser(intraUsername);
     const existingUserEvents = await UserEvent.getUserEventsByUserId(user.id);
     const recentestIntraIdOfExistingUserEvent = existingUserEvents.reduce(
@@ -285,7 +285,7 @@ const syncUserEventsOnDbAndApi = async intraUsername => {
     // remove cancel subscribe event from api to db
     existingUserEvents.forEach(async userEvent => {
       const isExistIn42 = userEventsFrom42Api.find(
-        userEventFromApi => userEventFromApi.id === userEvent.intraId,
+        userEventFrom42Api => userEventFrom42Api.id === userEvent.intraId,
       );
       if (isExistIn42) return;
       await UserEvent.deleteUserEvent(user.id, userEvent.id);
@@ -301,6 +301,6 @@ const syncUserEventsOnDbAndApi = async intraUsername => {
 module.exports = {
   normalizeEventToResponse,
   updateUserEventsRemindAt,
-  syncUpComingEventsOnDbAndApi,
-  syncEveryEventsOnDbAndApi,
+  syncUpComingEventsFrom42,
+  syncEveryEventsFrom42,
 };

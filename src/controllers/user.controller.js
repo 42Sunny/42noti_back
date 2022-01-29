@@ -2,7 +2,7 @@ const httpStatus = require('http-status');
 const { getUser, getMyUserData } = require('../services/user.service');
 
 module.exports = {
-  apiUserDataController: async (req, res) => {
+  userDataController: async (req, res) => {
     const { intraUsername } = req.params;
     try {
       const data = await getUser(intraUsername);
@@ -16,7 +16,7 @@ module.exports = {
       console.error(err);
     }
   },
-  apiMyUserDataController: async (req, res) => {
+  myUserDataController: async (req, res) => {
     const intraUsername = req.user.jwt.name;
 
     try {
