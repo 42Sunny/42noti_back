@@ -9,43 +9,45 @@ const {
 const { getUser } = require('../services/user.service');
 const { Event } = require('../models');
 
+const checkAuthority = async (userRole, source) => {
+  if (userRole === 'admin') return true;
+  if (source === 'mock') return true;
+  if (source === 'cadet' && userRole === 'cadet') return true;
+  // TODO: add (event.createdBy === intraUsername)
+  return false;
+}
+
+const checkRequiredFields = async (event) => {
+  if (
+    !event.title ||
+    !event.description ||
+    !event.category ||
+    !event.beginAt ||
+    !event.endAt
+  ) {
+    return false;
+  }
+  return true;
+}
+
+const changeUtc9toUtc0 = (date) => {
+  return new Date(new Date(date).getTime() - 9 * 60 * 60 * 1000);
+}
+
 const postEventController = async (req, res) => {
   const intraUsername = req.user.jwt.name;
   const body = req.body;
 
   const existingUser = await getUser(intraUsername);
-  if (
-    !(
-      existingUser.role === 'admin' ||
-      body.source === 'mock' || // TODO: add user role check
-      (body.source === 'cadet' && existingUser.role === 'cadet')
-    )
-  ) {
+  if (!checkAuthority(existingUser.role, body.source)) {
     return res.status(httpStatus.FORBIDDEN).json({ message: ' Forbidden' });
   }
-
-  if (
-    !body.event.title ||
-    !body.event.description ||
-    !body.event.category ||
-    !body.event.beginAt ||
-    !body.event.endAt
-  ) {
+  if (!checkRequiredFields(body.event)) {
     return res.status(httpStatus.BAD_REQUEST).json({
       message: 'Required field is missing',
     });
   }
 
-  // utc+9 to utc-0
-  const beginAt = new Date(
-    new Date(body.event.beginAt).getTime() - 9 * 60 * 60 * 1000,
-  );
-  const endAt = new Date(
-    new Date(body.event.endAt).getTime() - 9 * 60 * 60 * 1000,
-  );
-  const tags = body.event.tags.map(tag => {
-    return { name: tag };
-  });
   const eventData = {
     intraId: null,
     intraCreatedAt: null,
@@ -55,19 +57,16 @@ const postEventController = async (req, res) => {
     location: body.event.location,
     maxSubscribers: body.event.maxSubscribers,
     currentSubscribers: 0,
-    beginAt,
-    endAt,
+    beginAt: changeUtc9toUtc0(body.event.beginAt),
+    endAt: changeUtc9toUtc0(body.event.endAt),
     category: body.event.category,
-    tags: JSON.stringify(tags),
+    tags: JSON.stringify(
+      body.event.tags.map(tag => {
+        return { name: tag };
+      }),
+    ),
   };
-  let source;
-  if (body.source === '42api') source = CONSTANTS.EVENT_SOURCE_42API;
-  else if (body.source === 'admin') source = CONSTANTS.EVENT_SOURCE_ADMIN;
-  else if (body.source === 'cadet') source = CONSTANTS.EVENT_SOURCE_CADET;
-  else if (body.source === 'mock') source = CONSTANTS.EVENT_SOURCE_MOCK;
-  else source = 0;
-
-  const savedEvent = await Event.saveEvent(eventData, source);
+  const savedEvent = await Event.saveEvent(eventData, CONSTANTS.EVENT_SOURCE[body.source]);
   const parse = JSON.parse(savedEvent.dataValues.tags);
   const resTags = parse.map(tag => tag.name);
   return res.status(httpStatus.OK).json({
@@ -88,56 +87,29 @@ const putEventController = async (req, res) => {
       message: 'Event not found',
     });
   }
-  console.log('event: ', existingEvent);
-
-  if (
-    !(
-      (
-        existingUser.role === 'admin' ||
-        existingEvent.source === 'mock' || // TODO: add user role check
-        (existingEvent.source === 'cadet' && existingUser.role === 'cadet')
-      )
-      // TODO: add (event.createdBy === intraUsername)
-    )
-  ) {
-    return res.status(httpStatus.FORBIDDEN).json({
-      message: 'Forbidden',
-    });
+  if (!checkAuthority(existingUser.role, existingEvent.source)) {
+    return res.status(httpStatus.FORBIDDEN).json({ message: 'Forbidden' });
   }
-
-  if (
-    !body.event.title ||
-    !body.event.description ||
-    !body.event.category ||
-    !body.event.beginAt ||
-    !body.event.endAt
-  ) {
+  if (!checkRequiredFields(body.event)) {
     return res.status(httpStatus.BAD_REQUEST).json({
       message: 'Required field is missing',
     });
   }
 
-  // utc+9 to utc-0
-  const beginAt = new Date(
-    new Date(body.event.beginAt).getTime() - 9 * 60 * 60 * 1000,
-  );
-  const endAt = new Date(
-    new Date(body.event.endAt).getTime() - 9 * 60 * 60 * 1000,
-  );
-  const tags = body.event.tags.map(tag => {
-    return { name: tag };
-  });
   const newEventData = {
     title: body.event.title,
     description: body.event.description,
     location: body.event.location,
     maxSubscribers: body.event.maxSubscribers,
-    beginAt,
-    endAt,
+    beginAt: changeUtc9toUtc0(body.event.beginAt),
+    endAt: changeUtc9toUtc0(body.event.endAt),
     category: body.event.category,
-    tags: JSON.stringify(tags),
+    tags: JSON.stringify(
+      body.event.tags.map(tag => {
+        return { name: tag };
+      }),
+    ),
   };
-
   const updatedEvent = await updateEvent(eventId, newEventData);
   return res.status(httpStatus.OK).json(updatedEvent);
 };
@@ -153,14 +125,7 @@ const deleteEventController = async (req, res) => {
       message: 'Event not found',
     });
   }
-
-  // prettier-ignore
-  if (!(
-    existingUser.role === 'admin' ||
-    existingEvent.source === 'mock' || // TODO: add user role check
-    (existingEvent.source === 'cadet' && existingUser.role === 'cadet')
-    // TODO: add (event.createdBy === intraUsername)
-  )) {
+  if (!checkAuthority(existingUser.role, existingEvent.source)) {
     return res.status(httpStatus.FORBIDDEN).json({
       message: 'Forbidden',
     });

@@ -105,7 +105,7 @@ module.exports = class Event extends Model {
   }
 
   static async saveEvent(event, source) {
-    if (source === CONSTANTS.EVENT_SOURCE_42API) {
+    if (source === CONSTANTS.EVENT_SOURCE['42api']) {
       const where = event.id ? { id: event.id } : { intraId: event.intraId };
       const existingEvent = await this.findOne({
         where,

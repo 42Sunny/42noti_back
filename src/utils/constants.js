@@ -1,7 +1,9 @@
 module.exports = {
-  EVENT_SOURCE_42API: 1,
-  EVENT_SOURCE_ADMIN: 2,
-  EVENT_SOURCE_CADET: 3,
-  EVENT_SOURCE_MOCK: 4,
+  EVENT_SOURCE: {
+    '42api': 1,
+    'admin': 2,
+    'cadet': 3,
+    'mock': 4,
+  },
   REMINDER_BEFORE_EVENT_MINUTES: 10,
 }

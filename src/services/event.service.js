@@ -23,10 +23,7 @@ const getCampusEvents = async options => {
 
   where.source = {
     [Op.in]: includeSources.map(source => {
-      if (source === '42api') return CONSTANTS.EVENT_SOURCE_42API;
-      if (source === 'admin') return CONSTANTS.EVENT_SOURCE_ADMIN;
-      if (source === 'cadet') return CONSTANTS.EVENT_SOURCE_CADET;
-      if (source === 'mock') return CONSTANTS.EVENT_SOURCE_MOCK;
+      return CONSTANTS.EVENT_SOURCES[source];
     }),
   };
 

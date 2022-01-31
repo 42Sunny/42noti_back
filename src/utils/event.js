@@ -59,7 +59,7 @@ const _normalize42ExamToSaveInDb = originalExam => {
     tags: '[]',
     intraCreatedAt: originalExam.created_at,
     intraUpdatedAt: originalExam.updated_at,
-    source: CONSTANTS.EVENT_SOURCE_42API,
+    source: CONSTANTS.EVENT_SOURCE['42api'],
   };
 };
 
@@ -73,11 +73,10 @@ const normalizeEventToResponse = dbEvent => {
     const updatedAt = dbEvent.intraUpdatedAt
       ? dbEvent.intraUpdatedAt
       : dbEvent.updatedAt;
-    let source;
-    if (dbEvent.source === CONSTANTS.EVENT_SOURCE_42API) source = '42api';
-    else if (dbEvent.source === CONSTANTS.EVENT_SOURCE_ADMIN) source = 'admin';
-    else if (dbEvent.source === CONSTANTS.EVENT_SOURCE_CADET) source = 'cadet';
-    else if (dbEvent.source === CONSTANTS.EVENT_SOURCE_MOCK) source = 'mock';
+
+    const source = Object.keys(CONSTANTS.EVENT_SOURCE).find(
+      key => CONSTANTS.EVENT_SOURCE[key] === dbEvent.source,
+    );
 
     return {
       id: dbEvent.id,
@@ -123,8 +122,8 @@ const _syncEvents = events => {
     if (!existingEvent) {
       // save new event in db
       const newEvent = await Event.saveEvent(
-        _normalize42EventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE_42API),
-        CONSTANTS.EVENT_SOURCE_42API,
+        _normalize42EventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE['42api']),
+        CONSTANTS.EVENT_SOURCE['42api'],
       );
       console.log(
         `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
@@ -132,7 +131,7 @@ const _syncEvents = events => {
     } else {
       if (event42.updated_at !== existingEvent.intraUpdatedAt) {
         const updatedEvent = await Event.updateEvent(
-          _normalize42EventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE_42API),
+          _normalize42EventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE['42api']),
         );
         const remindAt = new Date(
           new Date(updatedEvent.beginAt).getTime() -
@@ -158,7 +157,7 @@ const _syncExams = originalExams => {
         // save new event as exam in db
         const newExam = await Event.saveEvent(
           _normalize42ExamToSaveInDb(exam),
-          CONSTANTS.EVENT_SOURCE_42API,
+          CONSTANTS.EVENT_SOURCE['42api'],
         );
         console.log(
           `🆕 new exam event created: ${newExam.intraId} ${newExam.title}`,
@@ -243,9 +242,9 @@ const syncUserEventsFrom42 = async intraUsername => {
         const newEvent = await Event.saveEvent(
           _normalize42EventToSaveInDb(
             userEvent42,
-            CONSTANTS.EVENT_SOURCE_42API,
+            CONSTANTS.EVENT_SOURCE['42api'],
           ),
-          CONSTANTS.EVENT_SOURCE_42API,
+          CONSTANTS.EVENT_SOURCE['42api'],
         );
         console.log(
           `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
