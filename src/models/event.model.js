@@ -79,9 +79,6 @@ module.exports = class Event extends Model {
         where: { id: eventId },
         raw: true,
       });
-      if (!event) {
-        throw new Error('event not found');
-      }
       console.log('event', event);
       return event;
     } catch (err) {
@@ -95,9 +92,6 @@ module.exports = class Event extends Model {
         where: { intraId },
         raw: true,
       });
-      if (!event) {
-        throw new Error('event not found');
-      }
       return event;
     } catch (err) {
       console.error(err);
