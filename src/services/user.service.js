@@ -13,22 +13,28 @@ const getMyUserData = async intraUsername => {
   }
 };
 
+const getCadet = async intraUsername => {
+  const cadetFrom42 = await get42User(intraUsername);
+  if (!cadetFrom42) {
+    return null;
+  }
+  const { id, login, displayname, email, url } = cadetFrom42;
+  const data = {
+    id: null,
+    intraId: id,
+    username: login,
+    displayName: displayname,
+    email,
+    intraProfilePageUrl: url,
+    role: null,
+  };
+  return data;
+};
+
 const getUser = async intraUsername => {
   const user = await User.getUser(intraUsername);
   if (!user) {
-    const userFrom42 = await get42User(intraUsername);
-    if (!userFrom42) {
-      return null;
-    }
-    const { id, login, displayname, email, url } = userFrom42;
-    const data = {
-      id,
-      username: login,
-      displayName: displayname,
-      email,
-      intraProfilePageUrl: url,
-    };
-    return data;
+    return null;
   }
   const { id, intraId, displayName, email, intraProfilePageUrl, role } =
     user;
@@ -46,5 +52,6 @@ const getUser = async intraUsername => {
 
 module.exports = {
   getMyUserData,
+  getCadet,
   getUser,
 };

@@ -50,9 +50,6 @@ module.exports = class User extends Model {
         where: { intraUsername },
         raw: true,
       });
-      if (!user) {
-        throw new Error('user not found');
-      }
       return user;
     } catch (err) {
       console.error(err);
