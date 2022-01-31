@@ -73,12 +73,12 @@ const userEventReminderStatusController = async (req, res) => {
 
     const status = await getUserEventReminderStatus(intraUsername, eventId);
     if (status === null) {
-      return res.json({
+      return res.status(httpStatus.OK).json({
         message: "This event doesn't have a reminder setting.",
         reminder: null,
       });
     }
-    return res.json({
+    return res.status(httpStatus.OK).json({
       reminder: status,
     });
   } catch (err) {
@@ -105,7 +105,7 @@ const userEventReminderOnController = async (req, res) => {
     }
     const now = new Date();
     if (event.beginAt < now) {
-      return res.json({
+      return res.status(httpStatus.OK).json({
         message: 'event is already started.',
         reminder: null,
       });
@@ -132,7 +132,7 @@ const userEventReminderOnController = async (req, res) => {
       eventId,
       beforeMinutes < now ? now : beforeMinutes,
     );
-    return res.json({
+    return res.status(httpStatus.CREATED).json({
       reminder: userEventStatus.dataValues.isSetReminder,
       remindAt: userEventStatus.dataValues.remindAt,
       event: event,
@@ -161,7 +161,7 @@ const userEventReminderOffController = async (req, res) => {
     }
     const now = new Date();
     if (event.beginAt < now) {
-      return res.json({
+      return res.status(httpStatus.OK).json({
         message: 'event is already started.',
         reminder: null,
       });
@@ -178,7 +178,7 @@ const userEventReminderOffController = async (req, res) => {
       intraUsername,
       eventId,
     );
-    return res.json({
+    return res.status(httpStatus.OK).json({
       reminder: userEventStatus.isSetReminder,
       event: event,
     });

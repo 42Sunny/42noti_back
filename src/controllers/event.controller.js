@@ -69,7 +69,7 @@ const postEventController = async (req, res) => {
   const savedEvent = await Event.saveEvent(eventData, CONSTANTS.EVENT_SOURCE[body.source]);
   const parse = JSON.parse(savedEvent.dataValues.tags);
   const resTags = parse.map(tag => tag.name);
-  return res.status(httpStatus.OK).json({
+  return res.status(httpStatus.CREATED).json({
     ...savedEvent.dataValues,
     tags: resTags,
   });
@@ -111,7 +111,7 @@ const putEventController = async (req, res) => {
     ),
   };
   const updatedEvent = await updateEvent(eventId, newEventData);
-  return res.status(httpStatus.OK).json(updatedEvent);
+  return res.status(httpStatus.CREATED).json(updatedEvent);
 };
 
 const deleteEventController = async (req, res) => {
@@ -137,9 +137,7 @@ const deleteEventController = async (req, res) => {
       message: 'Failed to delete event',
     });
   }
-  return res.status(httpStatus.OK).json({
-    message: 'Event deleted',
-  });
+  return res.status(httpStatus.NO_CONTENT).end();
 };
 
 const eventsController = async (req, res) => {
@@ -159,7 +157,7 @@ const eventsController = async (req, res) => {
         message: 'campus events not found',
       });
     }
-    return res.json(data);
+    return res.status(httpStatus.OK).json(data);
   } catch (err) {
     console.error(err);
   }
@@ -174,7 +172,7 @@ const eventController = async (req, res) => {
         message: 'event not found',
       });
     }
-    return res.json(data);
+    return res.status(httpStatus.OK).json(data);
   } catch (err) {
     console.error(err);
   }

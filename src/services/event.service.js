@@ -23,7 +23,7 @@ const getCampusEvents = async options => {
 
   where.source = {
     [Op.in]: includeSources.map(source => {
-      return CONSTANTS.EVENT_SOURCES[source];
+      return CONSTANTS.EVENT_SOURCE[source];
     }),
   };
 
