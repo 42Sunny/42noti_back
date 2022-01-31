@@ -1,5 +1,9 @@
 const { syncEveryEventsFrom42 } = require('../utils/event');
-const { cacheSlackUserIds } = require('../utils/slackApi');
+const {
+  cacheSlackUserIds,
+  sendMessageToUser,
+  sendMessageToChannel,
+} = require('../utils/slackApi');
 const { initEveryScheduleReminderSlackDm } = require('../utils/reminder');
 const {
   syncUpComingEventsEveryMinute,
@@ -16,4 +20,6 @@ module.exports = async () => {
   await cacheSlackUserIds();
   await scheduling();
   await initEveryScheduleReminderSlackDm();
-};
+  await sendMessageToUser('sarchoi', 'Server is up and running!');
+  // await sendMessageToChannel('dev', 'Server is up and running!');
+};;
