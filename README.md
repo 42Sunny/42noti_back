@@ -8,11 +8,10 @@
 프론트엔드 서비스는 [여기](https://bitbucket.org/42meetup/meetup_front/)에서 확인하실 수 있습니다.
 
 ## 설치 및 실행 방법
-1. 이 저장소를 클론하고 종속성 패키지를 설치합니다.
+1. 이 저장소를 클론합니다.
 	```shell
 	$ git clone git@bitbucket.org:42meetup/meetup_back.git
 	$ cd meetup_back
-	$ npm install
 	```
 2. [아래 내용](#외부-API-서비스-키-발급-받기)을 참고해서 외부 API 서비스 키를 발급 받습니다. 개발용 로컬의 `.env`에 사용되는 서비스 키는 슬랙을 통해 공유합니다.
 3. `.env.example` 파일을 `.env`로 복사하여 내용을 수정합니다.
