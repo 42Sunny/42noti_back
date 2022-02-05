@@ -15,12 +15,16 @@ const getUserEvents = async intraUsername => {
   if (!userEvents) {
     return null;
   }
-  return Promise.all(
+
+  const events = await Promise.all(
     userEvents.map(async userEvent => {
       const event = await Event.getEvent(userEvent.EventId);
+      if (!event)
+        return null;
       return normalizeEventToResponse(event);
     }),
   );
+  return events.filter(event => event !== null);
 };
 
 const getUserEvent = async (intraUsername, eventId) => {
