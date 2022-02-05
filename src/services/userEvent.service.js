@@ -24,7 +24,13 @@ const getUserEvents = async intraUsername => {
       return normalizeEventToResponse(event);
     }),
   );
-  return events.filter(event => event !== null);
+  return events.filter(event => event !== null).sort((a, b) => {
+    if (a.beginAt < b.beginAt)
+      return 1;
+    if (a.beginAt > b.beginAt)
+      return -1;
+    return 0;
+  });
 };
 
 const getUserEvent = async (intraUsername, eventId) => {
