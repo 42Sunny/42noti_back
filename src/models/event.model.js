@@ -168,10 +168,11 @@ module.exports = class Event extends Model {
       limit: limit === -1 ? null : limit,
       raw: true,
     });
-    if (events.count === 0) {
+    console.log('events', events);
+    if (events.rows.length === 0) {
       return {
-        count: 0,
-        data: null
+        count: events.count,
+        data: null,
       };
     }
     return {

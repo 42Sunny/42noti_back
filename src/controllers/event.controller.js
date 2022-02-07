@@ -152,9 +152,9 @@ const eventsController = async (req, res) => {
   };
   try {
     const {count, data} = await getCampusEvents(options);
-    if (count === 0) {
+    if (data === null) {
       return res.status(httpStatus.NOT_FOUND).set({
-        'X-Total-Count': 0,
+        'X-Total-Count': count,
       }).json({
         message: 'campus events not found',
       });
