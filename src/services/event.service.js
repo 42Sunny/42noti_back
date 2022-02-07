@@ -34,12 +34,18 @@ const getCampusEvents = async options => {
   if (forceUpdate) await syncUpComingEventsFrom42();
   const originalData = await Event.getEvents(where);
   if (!originalData) {
-    return null;
+    return {
+      count: 0,
+      data: null
+    };
   }
-  const data = await originalData.map(event =>
+  const data = await originalData.data.map(event =>
     normalizeEventToResponse(event),
   );
-  return data;
+  return {
+    count: originalData.count,
+    data
+  };
 };
 
 const getEvent = async eventId => {

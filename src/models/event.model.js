@@ -161,16 +161,22 @@ module.exports = class Event extends Model {
   static async getEvents(where) {
     const { beginAt, source, offset, limit } = where;
 
-    const events = await this.findAll({
+    const events = await this.findAndCountAll({
       where: { source, beginAt },
       order: [['beginAt', 'DESC']],
       offset,
       limit: limit === -1 ? null : limit,
       raw: true,
     });
-    if (events.length === 0) {
-      return null;
+    if (events.count === 0) {
+      return {
+        count: 0,
+        data: null
+      };
     }
-    return events;
+    return {
+      count: events.count,
+      data: events.rows,
+    };
   }
 };
