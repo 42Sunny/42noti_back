@@ -20,21 +20,21 @@ const fortytwoStrategyCallback = async (accessToken, refreshToken, profile, done
   } = profile;
 
   try {
-    const foundedUser = await User.findOne({
+    const existingUser = await User.findOne({
       where: {
         intraId,
       },
     });
-    if (foundedUser) {
-      foundedUser.accessToken = accessToken;
-      foundedUser.refreshToken =
+    if (existingUser) {
+      existingUser.accessToken = accessToken;
+      existingUser.refreshToken =
         typeof refreshToken === String
           ? refreshToken
           : refreshToken.access_token;
-      foundedUser.email = email;
+      existingUser.email = email;
 
-      await foundedUser.save();
-      return done(null, { ft: foundedUser });
+      await existingUser.save();
+      return done(null, { ft: existingUser });
     }
     const newUserData = {
       intraId,

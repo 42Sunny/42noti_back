@@ -32,28 +32,28 @@ const getCampusEvents = async options => {
   where.limit = range === 'upcoming' ? -1 : Number(limit);
 
   if (forceUpdate) await syncUpComingEventsFrom42();
-  const originalData = await Event.getEvents(where);
-  if (originalData.data === null) {
+  const events = await Event.getEvents(where);
+  if (events.data === null) {
     return {
-      count: originalData.count,
+      count: events.count,
       data: null,
     };
   }
-  const data = await originalData.data.map(event =>
+  const data = await events.data.map(event =>
     normalizeEventToResponse(event),
   );
   return {
-    count: originalData.count,
+    count: events.count,
     data
   };
 };
 
 const getEvent = async eventId => {
-  const originalData = await Event.getEvent(eventId);
-  if (!originalData) {
+  const event = await Event.getEvent(eventId);
+  if (!event) {
     return null;
   }
-  const data = normalizeEventToResponse(originalData);
+  const data = normalizeEventToResponse(event);
   return data;
 };
 
@@ -75,8 +75,8 @@ const updateEvent = async (eventId, data) => {
 };
 
 const deleteEvent = async eventId => {
-  const originalData = await Event.deleteEvent(eventId);
-  if (!originalData) {
+  const event = await Event.deleteEvent(eventId);
+  if (!event) {
     return null;
   }
   return true;

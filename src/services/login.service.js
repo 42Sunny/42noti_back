@@ -4,11 +4,11 @@ const env = require('../config');
 const { User } = require('../models');
 
 const _getUserData = async user => {
-  const foundedUser = await User.findOne({
+  const existingUser = await User.findOne({
     where: { intraId: user.intraId },
   });
 
-  if (!foundedUser) {
+  if (!existingUser) {
     const newUser = await User.create({
       intraId: user.intraId,
       intraUsername: user.intraUsername,
@@ -23,11 +23,11 @@ const _getUserData = async user => {
     return newUser;
   }
 
-  if (foundedUser.email !== user.email) {
-    foundedUser.email = user.email;
-    await foundedUser.save();
+  if (existingUser.email !== user.email) {
+    existingUser.email = user.email;
+    await existingUser.save();
   }
-  return foundedUser;
+  return existingUser;
 };
 
 const _generateToken = user => {
