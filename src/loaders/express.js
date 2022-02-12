@@ -48,6 +48,7 @@ module.exports = async app => {
         `42.fr`,
       ],
       credentials: true,
+      exposedHeaders: ['X-Total-Count'],
     }),
   );
 
