@@ -33,10 +33,10 @@ const getCampusEvents = async options => {
 
   if (forceUpdate) await syncUpComingEventsFrom42();
   const events = await Event.getEvents(where);
-  if (events.data === null) {
+  if (events.count === 0) {
     return {
       count: events.count,
-      data: null,
+      data: events.data,
     };
   }
   const data = await events.data.map(event =>

@@ -169,12 +169,6 @@ module.exports = class Event extends Model {
       raw: true,
     });
     console.log('events', events);
-    if (events.rows.length === 0) {
-      return {
-        count: events.count,
-        data: null,
-      };
-    }
     return {
       count: events.count,
       data: events.rows,
