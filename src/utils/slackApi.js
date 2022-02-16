@@ -17,19 +17,47 @@ const client = new WebClient(SLACK_BOT_TOKEN, {
   logLevel: LogLevel.DEBUG,
 });
 
+const getUserList = async () => {
+  let resultAll = [];
+  let nextCursor = null;
+
+  while (nextCursor !== "") {
+    result = await app.client.users.list({
+      token: SLACK_BOT_TOKEN,
+      limit: 1000,
+      cursor: nextCursor
+    });
+    resultAll = [...resultAll, ...result.members];
+    nextCursor = result.response_metadata.next_cursor;
+  }
+
+  const members = resultAll.filter(
+    member => member.deleted !== true && member.is_bot === false,
+  );
+  cache.set('slack-userList', members);
+  return members;
+}
+
+const getCachedUserList = async () => {
+  const cachedUserList = cache.get('slack-userList');
+  if (cachedUserList) {
+    return JSON.parse(cachedUserList);
+  }
+  const userList = await getUserList();
+  cache.set('slack-userList', JSON.stringify(userList));
+  return userList;
+};
+
 const findUserIdByUsername = async username => {
   console.log('findUserIdByUsername: ', username);
   try {
-    const result = await app.client.users.list({
-      token: SLACK_BOT_TOKEN,
-    });
+    const userList = await getCachedUserList();
+    const user = userList.find(member => member.name === username || member.real_name === username);
 
-    // TODO: find user id from 'Login 42' in 42born2code workspace
-    for (const user of result.members) {
-      if (user.real_name === username) {
-        return user.id;
-      }
+    if (!user) {
+      throw new Error(`User not found: ${username}`);
     }
+    return user.id;
   } catch (error) {
     console.error(error);
   }
@@ -37,9 +65,7 @@ const findUserIdByUsername = async username => {
 
 const findDmChannelId = async username => {
   try {
-    console.log(username);
     const result = await findUserIdByUsername(username);
-
     return result;
   } catch (error) {
     console.error(error);
@@ -47,7 +73,6 @@ const findDmChannelId = async username => {
 };
 
 const findCachedDmChannelId = async username => {
-  console.log('findDmChannelIdCache: ', username);
   try {
     const cached = cache.get(`slack-dmChannelId-${username}`);
     if (cached) {
@@ -90,16 +115,8 @@ const sendEventReminder = async (channelId, event) => {
   const endAt = new Date(new Date(event.endAt).getTime() + 9 * 60 * 60 * 1000);
 
   const zeroPad = (value) => value < 10 ? `0${value}` : value;
-  const beginAtString = `${beginAt.getFullYear()}/${
-    beginAt.getMonth() + 1
-  }/${beginAt.getDate()} ${zeroPad(
-    beginAt.getHours(),
-  )}:${zeroPad(beginAt.getMinutes())}`;
-  const endAtString = `${endAt.getFullYear()}/${
-    endAt.getMonth() + 1
-  }/${endAt.getDate()} ${zeroPad(
-    endAt.getHours(),
-  )}:${zeroPad(endAt.getMinutes())}`;
+  const beginAtString = `${beginAt.getFullYear()}/${beginAt.getMonth() + 1}/${beginAt.getDate()} ${zeroPad(beginAt.getHours())}:${zeroPad(beginAt.getMinutes())}`;
+  const endAtString = `${endAt.getFullYear()}/${endAt.getMonth() + 1}/${endAt.getDate()} ${zeroPad(endAt.getHours())}:${zeroPad(endAt.getMinutes())}`;
 
   try {
     const result = await client.chat.postMessage({
@@ -232,7 +249,6 @@ const sendUpdatedEventReminder = async (channelId, event) => {
 };
 
 const cacheSlackUserIds = async () => {
-  console.log('cacheSlackUserIds');
   try {
     const users = await User.findAll({
       attributes: ['intraUsername'],
