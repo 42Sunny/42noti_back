@@ -7,11 +7,6 @@ const context = require('express-http-context');
 const env = require('../config');
 const logger = require('./winston');
 const passport = require('./passport');
-
-const combined =
-  ':remote-addr - :remote-user ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"';
-const morganFormat = env.NODE_ENV !== 'production' ? 'dev' : combined;
-console.log(morganFormat);
 const routes = require('../routes');
 
 const clientErrorHandler = (err, req, res, next) => {
@@ -24,7 +19,7 @@ const clientErrorHandler = (err, req, res, next) => {
 
 const errorHandler = (err, req, res, next) => {
   res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  res.locals.error = env.NODE_ENV === 'development' ? err : {};
 
   res.status(err.status || 500);
 };
@@ -34,6 +29,10 @@ module.exports = async app => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
 
+  const combined =
+    ':remote-addr - :remote-user ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"';
+  const morganFormat = env.NODE_ENV !== 'production' ? 'dev' : combined;
+  console.log(morganFormat);
   app.use(morgan(morganFormat, { stream: logger.stream }));
 
   passport(app);
