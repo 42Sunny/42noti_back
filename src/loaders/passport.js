@@ -5,11 +5,11 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const env = require('../config');
 const { User } = require('../models');
+const logger = require('../utils/winston');
 
 const fortytwoStrategyCallback = async (accessToken, refreshToken, profile, done) => {
-  console.log('fortytwoStrategyCallback');
-  console.log('accessToken ', accessToken);
-  console.log('refreshToken ', refreshToken);
+  logger.info(`accessToken: ${accessToken}`);
+  logger.info(`refreshToken: ${refreshToken}`);
   const {
     intraId,
     intraUsername,
@@ -50,14 +50,15 @@ const fortytwoStrategyCallback = async (accessToken, refreshToken, profile, done
           : refreshToken.access_token,
     };
     return done(null, { ft: newUserData });
-  } catch (err) {
-    done(err);
+  } catch (error) {
+    logger.error(error);
+    done(error);
   }
 };
 
 const validate = payload => {
   context.set('login', payload?.username ? payload?.username : '');
-  // TODO: logger
+  logger.info(`payload: ${JSON.stringify(payload)}`);
 
   return { _id: payload.sub, name: payload.username };
 };
@@ -70,14 +71,14 @@ const jwtStrategyCallback = async (jwt_payload, done) => {
     } else {
       return done(null, null);
     }
-  } catch (e) {
-    logger.error(e);
+  } catch (error) {
+    logger.error(error);
     return done(null, null);
   }
 };
 
 const jwtExtractor = req => {
-  // TODO: logger
+  logger.info(`env.cookie.auth: ${env.cookie.auth} , req.cookies: ${JSON.stringify(req.cookies)}, ret:  ${req.cookies[env.cookie.auth]}`);
   return req.cookies[env.cookie.auth];
 };
 

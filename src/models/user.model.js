@@ -1,4 +1,5 @@
 const { DataTypes, Model } = require('sequelize');
+const logger = require('../utils/winston');
 
 module.exports = class User extends Model {
   static init(sequelize) {
@@ -52,7 +53,7 @@ module.exports = class User extends Model {
       });
       return user;
     } catch (err) {
-      console.error(err);
+      logger.error(err);
     }
   }
 };

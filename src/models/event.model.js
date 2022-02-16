@@ -1,5 +1,6 @@
 const { DataTypes, Model } = require('sequelize');
 const CONSTANTS = require('../utils/constants');
+const logger = require('../utils/winston');
 
 module.exports = class Event extends Model {
   static init(sequelize) {
@@ -82,7 +83,7 @@ module.exports = class Event extends Model {
       console.log('event', event);
       return event;
     } catch (err) {
-      console.error(err);
+      logger.error(err);
     }
   }
 
@@ -94,7 +95,7 @@ module.exports = class Event extends Model {
       });
       return event;
     } catch (err) {
-      console.error(err);
+      logger.error(err);
     }
   }
 
@@ -135,7 +136,7 @@ module.exports = class Event extends Model {
       const updatedEvent = await event.update(data);
       return updatedEvent.dataValues;
     } catch (err) {
-      console.error(err);
+      logger.error(err);
     }
   }
 
@@ -154,7 +155,7 @@ module.exports = class Event extends Model {
       });
       return deletedEvent;
     } catch (err) {
-      console.error(err);
+      logger.error(err);
     }
   }
 

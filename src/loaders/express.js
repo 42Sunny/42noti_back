@@ -5,13 +5,14 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const context = require('express-http-context');
 const env = require('../config');
-const logger = require('./winston');
+const logger = require('../utils/winston');
 const passport = require('./passport');
 const routes = require('../routes');
 
 const clientErrorHandler = (err, req, res, next) => {
   if (req.xhr) {
     res.status(500).send({ error: 'Something failed!' });
+    logger.error(`clientErrorHandler: ${err.message}`);
   } else {
     next(err);
   }
@@ -21,6 +22,7 @@ const errorHandler = (err, req, res, next) => {
   res.locals.message = err.message;
   res.locals.error = env.NODE_ENV === 'development' ? err : {};
 
+  logger.error(`errorHandler: ${err.message}`);
   res.status(err.status || 500);
 };
 
@@ -32,7 +34,6 @@ module.exports = async app => {
   const combined =
     ':remote-addr - :remote-user ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"';
   const morganFormat = env.NODE_ENV !== 'production' ? 'dev' : combined;
-  console.log(morganFormat);
   app.use(morgan(morganFormat, { stream: logger.stream }));
 
   passport(app);

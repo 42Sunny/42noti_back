@@ -1,5 +1,6 @@
 const httpStatus = require('http-status');
 const { getUser, getCadet, getMyUserData } = require('../services/user.service');
+const logger = require('../utils/winston');
 
 const userDataController = async (req, res) => {
   const { intraUsername } = req.params;
@@ -19,7 +20,7 @@ const userDataController = async (req, res) => {
     }
     res.json(data);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 };
 
@@ -35,9 +36,10 @@ const myUserDataController = async (req, res) => {
     }
     res.json(data);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 };
+
 module.exports = {
   userDataController,
   myUserDataController,

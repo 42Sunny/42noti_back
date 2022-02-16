@@ -1,4 +1,5 @@
 const { sequelize } = require('../models');
+const logger = require('../utils/winston');
 
 module.exports = async () => {
   try {
@@ -9,8 +10,9 @@ module.exports = async () => {
      * - 'alter: true': will set the field if it changed.
      */
     await sequelize.sync({ force: false, alter: false });
-    console.log('\t Connection has been established successfully.');
+    logger.info('sequelize: connection has been established successfully.');
   } catch (error) {
-    console.error('Unable to connect to the database:', error);
+    logger.error('Unable to connect to the database.');
+    logger.error(error);
   }
 };

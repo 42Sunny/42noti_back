@@ -1,6 +1,7 @@
 const express = require('express');
 const loaders = require('./loaders');
 const env = require('./config');
+const logger = require('./utils/winston');
 
 const startServer = async () => {
   const app = express();
@@ -12,7 +13,11 @@ const startServer = async () => {
       console.error(err);
       return;
     }
-    console.log(`Server listening... ${env.back.domain}:${env.back.port}`);
+    logger.info(`===================`);
+    logger.info(`Server listening...`);
+    logger.info(`NODE_ENV: ${env.NODE_ENV}`);
+    logger.info(`🚀 ${env.back.domain}:${env.back.port}`);
+    logger.info(`===================`);
   });
 }
 

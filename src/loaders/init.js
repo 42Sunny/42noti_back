@@ -19,5 +19,5 @@ module.exports = async () => {
   await cacheSlackUserIds();
   await scheduling();
   await initEveryScheduleReminderSlackDm();
-  await sendMessageToUser('sarchoi', 'Server is up and running!');
+  await sendMessageToUser('sarchoi', `Server is up and running! : ${env.back.domain}:${env.back.port}`);
 };

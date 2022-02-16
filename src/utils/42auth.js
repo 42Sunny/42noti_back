@@ -1,6 +1,7 @@
 const axios = require('axios');
 const env = require('../config');
 const cache = require('./cache');
+const logger = require('./winston');
 
 const END_POINT_42_API = 'https://api.intra.42.fr';
 
@@ -21,7 +22,7 @@ const get42Token = async () => {
       return response.data;
     }
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 };
 

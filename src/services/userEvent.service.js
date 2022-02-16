@@ -7,6 +7,7 @@ const {
   addScheduleReminderSlackDm,
   removeScheduleReminderSlackDm,
 } = require('../utils/reminder');
+const logger = require('../utils/winston');
 
 const getUserEvents = async intraUsername => {
   // await syncUserEventsFrom42(intraUsername); // TODO: do this only force update.
@@ -59,7 +60,7 @@ const getUserEventReminderStatus = async (intraUsername, eventId) => {
     }
     return userEvent.isSetReminder ? true : false;
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 };
 
@@ -82,7 +83,7 @@ const setUserEventReminderOn = async (intraUsername, eventId, remindAt) => {
     await addScheduleReminderSlackDm(eventId, intraUsername);
     return userEvent;
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 };
 
@@ -105,7 +106,7 @@ const setUserEventReminderOff = async (intraUsername, eventId) => {
     await removeScheduleReminderSlackDm(eventId, intraUsername);
     return userEvent;
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 };
 

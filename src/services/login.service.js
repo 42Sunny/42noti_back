@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const context = require('express-http-context');
 const env = require('../config');
 const { User } = require('../models');
+const logger = require('../utils/winston');
 
 const _getUserData = async user => {
   const existingUser = await User.findOne({
@@ -19,7 +20,7 @@ const _getUserData = async user => {
       accessToken: user.accessToken,
       refreshToken: user.refreshToken,
     });
-    // TODO: logeer - user created
+    logger.info(`user created: ${newUser}`);
     return newUser;
   }
 
@@ -38,18 +39,17 @@ const _generateToken = user => {
     };
     context.set('login', user?.intraUsername);
     const token = jwt.sign(payload, env.cookie.secret, { expiresIn: '7d' });
-    // TODO: logger
+    logger.info(`token generated: ${token}, payload: ${payload}`);
     return token;
   } catch (err) {
-    console.error(err);
-    // TODO: logger
+    logger.error(err);
     throw err;
   }
 };
 
 const getToken = async user => {
   if (!user) {
-    console.error('no user data:', user);
+    logger.error('no user data:', user);
     // TODO error handler
   }
   const userData = await _getUserData(user);

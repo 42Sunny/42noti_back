@@ -3,6 +3,7 @@ const { WebClient, LogLevel } = require('@slack/web-api');
 const env = require('../config');
 const cache = require('./cache');
 const { User } = require('../models');
+const logger = require('./winston');
 
 const SLACK_BOT_TOKEN = env.slack.botToken;
 const SLACK_SIGNING_SECRET = env.slack.secret;
@@ -106,7 +107,7 @@ const sendMessage = async (channelId, message) => {
     });
     if (result.ok === true) console.log('Message sent!');
   } catch (error) {
-    console.error(error);
+    logger.error(error);
   }
 };
 
@@ -175,7 +176,7 @@ const sendEventReminder = async (channelId, event) => {
     });
     if (result.ok === true) console.log('Message sent!');
   } catch (error) {
-    console.error(error);
+    logger.error(error);
   }
 };
 
@@ -275,6 +276,7 @@ const sendMessageToUser = async (username, message) => {
   try {
     const dmChannelId = await findCachedDmChannelId(username);
     await sendMessage(dmChannelId, message);
+    logger.info(`Message sent to ${username}: ${message}`);
   } catch (error) {
     console.error(error);
   }
@@ -284,8 +286,9 @@ const sendEventReminderToUser = async (username, event) => {
   try {
     const dmChannelId = await findCachedDmChannelId(username);
     await sendEventReminder(dmChannelId, event);
+    logger.info(`Event remind message sent to ${username}: ${event.title}`);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
   }
 };
 
@@ -293,8 +296,9 @@ const sendUpdatedEventReminderToUser = async (username, event) => {
   try {
     const dmChannelId = await findCachedDmChannelId(username);
     await sendUpdatedEventReminder(dmChannelId, event);
+    logger.info(`Updated event message sent to ${username}: ${event.title}`);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
   }
 };
 

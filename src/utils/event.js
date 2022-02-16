@@ -7,6 +7,7 @@ const {
   get42CampusCadetEveryExams,
 } = require('./42api');
 const CONSTANTS = require('./constants');
+const logger = require('../utils/winston');
 
 const _normalize42EventToSaveInDb = (originalEvent, source) => {
   return {
@@ -106,13 +107,16 @@ const updateUserEventsRemindAt = async (eventId, remindAt) => {
     if (!userEvents) {
       return;
     }
+    logger.info(
+      `updateUserEventsRemindAt. eventId: ${eventId}(length: ${userEvents.length}), remindAt: ${remindAt}`,
+    );
     userEvents.forEach(async userEvent => {
       await UserEvent.updateUserEvent(userEvent.UserId, userEvent.EventId, {
         remindAt: remindAt > now ? remindAt : null,
       });
     });
   } catch(err) {
-    console.error(err);
+    logger.error(err);
   }
 }
 
@@ -125,7 +129,7 @@ const _syncEvents = events => {
         _normalize42EventToSaveInDb(event42, CONSTANTS.EVENT_SOURCE['42api']),
         CONSTANTS.EVENT_SOURCE['42api'],
       );
-      console.log(
+      logger.info(
         `🆕 new event created: ${newEvent.intraId} ${newEvent.title}`,
       );
     } else {
@@ -138,7 +142,7 @@ const _syncEvents = events => {
             1000 * 60 * CONSTANTS.REMINDER_BEFORE_EVENT_MINUTES,
         );
         await updateUserEventsRemindAt(updatedEvent.id, remindAt);
-        console.log(
+        logger.info(
           `🆙 event updated: ${updatedEvent.intraId} ${updatedEvent.title}`,
         );
       }
@@ -159,7 +163,7 @@ const _syncExams = originalExams => {
           _normalize42ExamToSaveInDb(exam),
           CONSTANTS.EVENT_SOURCE['42api'],
         );
-        console.log(
+        logger.info(
           `🆕 new exam event created: ${newExam.intraId} ${newExam.title}`,
         );
       } else {
@@ -173,7 +177,7 @@ const _syncExams = originalExams => {
               1000 * 60 * CONSTANTS.REMINDER_BEFORE_EVENT_MINUTES,
           );
           await updateUserEventsRemindAt(updatedExam.id, remindAt);
-          console.log(
+          logger.info(
             `🆙 exam event updated: ${updatedExam.intraId} ${updatedExam.title}`,
           );
         }
@@ -183,7 +187,7 @@ const _syncExams = originalExams => {
 };
 
 const syncUpComingEventsFrom42 = async () => {
-  console.log('syncUpComingEventsFrom42');
+  logger.info('sync up coming events from 42');
   try {
     const eventsFrom42Api = await get42CampusUpComingEvents(SEOUL_CAMPUS_ID);
     if (!eventsFrom42Api) throw new Error('campus events not found');
@@ -198,6 +202,7 @@ const syncUpComingEventsFrom42 = async () => {
 };
 
 const syncEveryEventsFrom42 = async () => {
+  logger.info('sync every events from 42');
   try {
     const eventsFrom42Api = await get42CampusEveryEvents(SEOUL_CAMPUS_ID);
     if (!eventsFrom42Api) throw new Error('campus events not found');
@@ -207,7 +212,7 @@ const syncEveryEventsFrom42 = async () => {
     if (!examsFrom42Api) throw new Error('campus exams not found');
     _syncExams(examsFrom42Api);
   } catch (err) {
-    console.error;
+    logger.error(err);
   }
 };
 
@@ -215,7 +220,7 @@ const SEOUL_CAMPUS_ID = '29';
 
 const syncUserEventsFrom42 = async intraUsername => {
   try {
-    console.log('syncUserEventsFrom42');
+    logger.info('syncUserEventsFrom42');
     const user = await User.getUser(intraUsername);
     const existingUserEvents = await UserEvent.getUserEventsByUserId(user.id);
     const recentestIntraIdOfExistingUserEvent = existingUserEvents.reduce(

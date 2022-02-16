@@ -1,5 +1,6 @@
 const { User } = require('../models');
 const { get42User } = require('../utils/42api');
+const logger = require('../utils/winston');
 
 const getMyUserData = async intraUsername => {
   try {
@@ -9,7 +10,7 @@ const getMyUserData = async intraUsername => {
     }
     return user;
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 };
 

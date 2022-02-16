@@ -8,6 +8,7 @@ const {
 } = require('../services/event.service');
 const { getUser } = require('../services/user.service');
 const { Event } = require('../models');
+const logger = require('../utils/winston');
 
 const checkAuthority = async (userRole, source) => {
   if (userRole === 'admin') return true;
@@ -133,6 +134,7 @@ const deleteEventController = async (req, res) => {
 
   const result = await deleteEvent(eventId);
   if (!result) {
+    logger.error('delete event failed');
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       message: 'Failed to delete event',
     });
@@ -169,7 +171,7 @@ const eventsController = async (req, res) => {
       })
       .json(data);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 };
 
@@ -184,7 +186,7 @@ const eventController = async (req, res) => {
     }
     return res.status(httpStatus.OK).json(data);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 };
 

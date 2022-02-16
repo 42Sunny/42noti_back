@@ -1,10 +1,11 @@
 const httpStatus = require('http-status');
 const env = require('../config');
 const loginService = require('../services/login.service');
+const logger = require('../utils/winston');
 
 const loginReturnController = async (req, res) => {
   try {
-    // TODO: logger
+    logger.info(`login: ${req.user?.ft}`)
     const { token, cookieOption } = await loginService.getToken(
       req.user?.ft,
     );
@@ -16,7 +17,7 @@ const loginReturnController = async (req, res) => {
       );
   } catch (err) {
     // TODO: error handler
-    console.error(err);
+    logger.error(err);
   }
 };
 
@@ -25,7 +26,7 @@ const logoutController = async (req, res) => {
     res.clearCookie(env.cookie.auth);
     res.redirect(env.frontUrl);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 }
 

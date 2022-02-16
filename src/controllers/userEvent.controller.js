@@ -10,6 +10,7 @@ const {
 } = require('../services/userEvent.service');
 const { getUser } = require('../services/user.service');
 const { UserEvent } = require('../models');
+const logger = require('../utils/winston');
 
 const userEventsController = async (req, res) => {
   const { intraUsername } = req.params;
@@ -29,7 +30,7 @@ const userEventsController = async (req, res) => {
     }
     return res.json(data);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 };
 
@@ -40,7 +41,7 @@ const myEventsController = async (req, res) => {
   try {
     const data = await getUserEvents(intraUsername);
     if (!data || data.length === 0) {
-      return res.status(httpStatus.NO_CONTENT).json({
+      return res.status(httpStatus.OK).json({
         message: 'my events is empty',
       });
     }
@@ -56,7 +57,7 @@ const myEventsController = async (req, res) => {
     }
     return res.json(data);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 };
 const userEventReminderStatusController = async (req, res) => {
@@ -82,7 +83,7 @@ const userEventReminderStatusController = async (req, res) => {
       reminder: status,
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 };
 
@@ -138,7 +139,7 @@ const userEventReminderOnController = async (req, res) => {
       event: event,
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 };
 
@@ -183,7 +184,7 @@ const userEventReminderOffController = async (req, res) => {
       event: event,
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 };
 

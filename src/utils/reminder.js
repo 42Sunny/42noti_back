@@ -7,6 +7,7 @@ const {
 } = require('../utils/slackApi');
 const cache = require('../utils/cache');
 const CONSTANTS = require('./constants');
+const logger = require('./winston');
 
 const remindEventSchedulesArray = {};
 
@@ -174,7 +175,7 @@ const addScheduleReminderSlackDm = async (eventId, intraUsername) => {
       cache.set('remindEventSchedulesArray', remindEventSchedulesArray);
     }
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 };
 
@@ -222,7 +223,7 @@ const removeScheduleReminderSlackDm = async (eventId, intraUsername) => {
     }
     cache.set('remindEventSchedulesArray', remindEventSchedulesArray);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 };
 
