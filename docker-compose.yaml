@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   proxy:
-    container_name: ft-proxy
+    container_name: noti-proxy
     image: nginx:latest
     depends_on:
       - mysqldb
@@ -12,7 +12,7 @@ services:
     volumes:
       - ./proxy/nginx.conf:/etc/nginx/nginx.conf
   mysqldb:
-    container_name: ft-mysql
+    container_name: noti-mysql
     image: mysql:5.7
     restart: unless-stopped
     env_file: ./.env
@@ -24,11 +24,11 @@ services:
     volumes:
       - db:/var/lib/mysql
   app:
-    container_name: ft-app
+    container_name: noti-api
     depends_on:
       - mysqldb
     build: ./src
-    image: meetup-app
+    image: noti-api
     restart: unless-stopped
     env_file: ./.env
     ports:
