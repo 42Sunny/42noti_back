@@ -2,33 +2,17 @@ version: '3.8'
 
 services:
   proxy:
-    container_name: noti-proxy
+    container_name: ft-proxy
     image: nginx:latest
-    restart: unless-stopped
     depends_on:
       - mysqldb
       - app
     ports:
       - "80:80"
-      - "443:443"
     volumes:
-      - ./proxy/nginx.conf:/etc/nginx/nginx.conf
-      - ./proxy/certbot/conf:/etc/letsencrypt
-      - ./proxy/certbot/www:/var/www/certbot
-    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
-
-  certbot:
-    container_name: noti-certbot
-    image: certbot/certbot:latest
-    restart: unless-stopped
-    volumes:
-      - ./proxy/certbot/logs:/var/log/letsencrypt
-      - ./proxy/certbot/conf:/etc/letsencrypt
-      - ./proxy/certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-
+      - ./proxy/nginx.local.conf:/etc/nginx/nginx.conf
   mysqldb:
-    container_name: noti-mysql
+    container_name: ft-mysql
     image: mysql:5.7
     restart: unless-stopped
     env_file: ./.env
@@ -40,16 +24,18 @@ services:
     volumes:
       - db:/var/lib/mysql
   app:
-    container_name: noti-api
+    container_name: ft-app
+    depends_on:
+      - mysqldb
     build: ./src
-    image: noti-api
+    image: meetup-app
     restart: unless-stopped
     env_file: ./.env
     ports:
       - $NODE_LOCAL_PORT:$NODE_DOCKER_PORT
     environment:
       - DATABASE_PORT=$MYSQLDB_DOCKER_PORT
-      - DATABASE_HOST=noti-mysql
+      - DATABASE_HOST=ft-mysql
       - DATABASE_USERNAME=$MYSQLDB_USER
       - DATABASE_PASSWORD=$MYSQLDB_ROOT_PASSWORD
       - DATABASE_NAME=$MYSQLDB_DATABASE
