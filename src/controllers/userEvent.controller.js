@@ -40,10 +40,9 @@ const myEventsController = async (req, res) => {
 
   try {
     const data = await getUserEvents(intraUsername);
+    console.log('data', data)
     if (!data || data.length === 0) {
-      return res.status(httpStatus.OK).json({
-        message: 'my events is empty',
-      });
+      return res.status(httpStatus.OK).json([]);
     }
     if (range == 'upcoming') {
       const upcomingEvents = data.filter(
