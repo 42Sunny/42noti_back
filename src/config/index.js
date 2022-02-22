@@ -13,23 +13,16 @@ module.exports = {
     port: process.env.BACK_PORT || 4242,
   },
   frontUrl: process.env.FRONT_URL || 'http://localhost:3000',
-  dev: {
-    back: {
-      domain: process.env.DEV_BACK_DOMAIN || 'http://localhost',
-      port: process.env.DEV_BACK_PORT || 4242,
-    },
-    frontUrl: process.env.DEV_FRONT_URL || 'http://localhost:3000',
-  },
   db: {
     port: process.env.DATABASE_PORT || 27017,
     host: process.env.DATABASE_HOST || 'localhost',
     username: process.env.DATABASE_USERNAME || '',
     password: process.env.DATABASE_PASSWORD || '',
-    name: process.env.DATABASE_NAME || '42meetup',
+    name: process.env.DATABASE_NAME || '42noti',
   },
   cookie: {
     domain: process.env.COOKIE_DOMAIN || 'localhost',
-    secret: process.env.COOKIE_SECRET || 'test-fortytwo-meetup-secret',
+    secret: process.env.COOKIE_SECRET || 'test-fortytwo-noti-secret',
     auth: process.env.COOKIE_AUTH || 'w_auth_local',
   },
   fortytwoApi: {

@@ -44,7 +44,7 @@ module.exports = async app => {
       origin: [
         `${env.back.domain}:${env.back.port}`,
         `${env.frontUrl}`,
-        `${env.dev.frontUrl}`,
+        'http://localhost:3000',
         `42.fr`,
       ],
       credentials: true,
