@@ -47,6 +47,8 @@ services:
     env_file: ./.env
     ports:
       - $NODE_LOCAL_PORT:$NODE_DOCKER_PORT
+    volumes:
+      - ./logs:/noti_back/logs
     environment:
       - DATABASE_PORT=$MYSQLDB_DOCKER_PORT
       - DATABASE_HOST=noti-mysql
