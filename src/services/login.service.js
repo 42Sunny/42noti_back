@@ -28,14 +28,15 @@ const _getUserData = async user => {
     existingUser.email = user.email;
     await existingUser.save();
   }
-  return existingUser;
+  return existingUser.dataValues;
 };
 
 const _generateToken = user => {
   try {
     const payload = {
+      sub: user.id,
       username: user.intraUsername,
-      sub: user.intraId,
+      role: user.role,
     };
     context.set('login', user?.intraUsername);
     const token = jwt.sign(payload, env.cookie.secret, { expiresIn: '7d' });

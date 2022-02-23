@@ -60,7 +60,7 @@ const validate = payload => {
   context.set('login', payload?.username ? payload?.username : '');
   logger.info(`payload: ${JSON.stringify(payload)}`);
 
-  return { _id: payload.sub, name: payload.username };
+  return { _id: payload.sub, name: payload.username, role: payload.role };
 };
 
 const jwtStrategyCallback = async (jwt_payload, done) => {

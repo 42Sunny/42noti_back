@@ -143,11 +143,14 @@ const deleteEventController = async (req, res) => {
 };
 
 const eventsController = async (req, res) => {
+  const userRole = req.user.jwt.role;
   const { range, source, update, page, limit } = req.query;
+
+  const defaultSource =
+    userRole === 'admin' ? '42api,admin,cadet,mock' : '42api,admin,cadet';
   const options = {
     range: range || 'upcoming',
-    includeSources:
-      (source && source.split(',')) || '42api,admin,cadet'.split(','),
+    includeSources: (source && source.split(',')) || defaultSource.split(','),
     forceUpdate: update === 'force' || false,
     page: page || 1,
     limit: limit || 10,
