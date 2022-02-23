@@ -149,14 +149,6 @@ const sendEventReminder = async (channelId, event) => {
           },
         },
         {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: event.description,
-          },
-        },
-
-        {
           type: 'actions',
           elements: [
             {
